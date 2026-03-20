@@ -23,24 +23,31 @@ body {
 
 .panel {
   position: relative;
-  width: min(660px, 86vw);
-  aspect-ratio: 660 / 380;
   flex-shrink: 0;
   border-radius: 2px;
   overflow: hidden;
+  /* desktop */
+  width: min(660px, 86vw);
+  aspect-ratio: 660 / 380;
 }
 
-#grid-canvas,
-#silk-canvas {
+/* portrait mobile */
+@media (max-width: 540px) {
+  .panel {
+    width: 92vw;
+    aspect-ratio: 3 / 4;
+  }
+}
+
+#grid-canvas, #silk-canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
 }
-
 #silk-canvas { pointer-events: none; }
 
-.panel svg {
+#main-svg {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -57,14 +64,14 @@ body.glitch { animation: bg-glitch 0.3s steps(2) forwards; }
 
 .toast {
   position: fixed;
-  bottom: 40px;
+  bottom: 36px;
   left: 50%;
   transform: translateX(-50%) translateY(20px);
   background: #ff9f0a;
-  color: #111113;
+  color: #0e0f11;
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   padding: 10px 20px;
   opacity: 0;
   pointer-events: none;
@@ -73,6 +80,17 @@ body.glitch { animation: bg-glitch 0.3s steps(2) forwards; }
   z-index: 20;
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 540px) {
+  .toast {
+    font-size: 10px;
+    padding: 8px 14px;
+    white-space: normal;
+    text-align: center;
+    max-width: 80vw;
+    bottom: 24px;
+  }
+}
 </style>
 </head>
 <body>
@@ -80,46 +98,123 @@ body.glitch { animation: bg-glitch 0.3s steps(2) forwards; }
 <div class="panel" id="panel">
   <canvas id="grid-canvas"></canvas>
   <canvas id="silk-canvas"></canvas>
-
-  <svg viewBox="0 0 660 380" id="main-svg"
-       xmlns="http://www.w3.org/2000/svg"
-       style="font-family:'JetBrains Mono',monospace;">
-
-    <text x="330" y="52"
-          font-size="34" font-weight="300"
-          fill="#e8e4d8" text-anchor="middle" opacity="0.15">"</text>
-
-    <text id="q1" x="330" y="88"
-          font-size="12" font-style="italic"
-          fill="#c8c4b8" text-anchor="middle" letter-spacing="0.06em"></text>
-    <text id="q2" x="330" y="108"
-          font-size="12" font-style="italic"
-          fill="#c8c4b8" text-anchor="middle" letter-spacing="0.06em"></text>
-    <text id="qa" x="330" y="130"
-          font-size="9.5" fill="#665f50"
-          text-anchor="middle" letter-spacing="0.14em"></text>
-
-    <text x="330" y="194" font-size="15"
-          fill="#d4d0c4" text-anchor="middle" letter-spacing="0.04em">
-      something is compiling.
-    </text>
-    <text x="330" y="226" font-size="15"
-          fill="#7a766c" text-anchor="middle" letter-spacing="0.04em">
-      it has been compiling for a while.
-    </text>
-    <text id="fine-text" x="330" y="258" font-size="15"
-          fill="#3e3b34" text-anchor="middle" letter-spacing="0.04em">
-      this is fine.
-    </text>
-
-    <circle id="pulse-dot" cx="330" cy="322" r="3.5" fill="#ff9f0a"/>
-  </svg>
+  <svg id="main-svg" xmlns="http://www.w3.org/2000/svg"
+       style="font-family:'JetBrains Mono',monospace;"></svg>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ── 1. GRID — sparser step ──
+const isMobile = () => window.innerWidth <= 540;
+
+// ─────────────────────────────────────────
+// 1. BUILD SVG — adaptive layout
+// ─────────────────────────────────────────
+const svg = document.getElementById('main-svg');
+const NS  = 'http://www.w3.org/2000/svg';
+
+function mkText(attrs, text) {
+  const el = document.createElementNS(NS, 'text');
+  Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k, v));
+  if (text !== undefined) el.textContent = text;
+  return el;
+}
+function mkCircle(attrs) {
+  const el = document.createElementNS(NS, 'circle');
+  Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k, v));
+  return el;
+}
+
+function buildSVG() {
+  svg.innerHTML = '';
+  const mobile = isMobile();
+
+  // viewBox: portrait on mobile, landscape on desktop
+  const VW = mobile ? 330 : 660;
+  const VH = mobile ? 440 : 380;
+  svg.setAttribute('viewBox', `0 0 ${VW} ${VH}`);
+  const cx = VW / 2;
+
+  // layout params
+  const qFontSize  = mobile ? 13   : 12;
+  const aFontSize  = mobile ? 10   : 9.5;
+  const lFontSize  = mobile ? 17   : 15;
+  const openY      = mobile ? 52   : 52;
+  const q1Y        = mobile ? 96   : 88;
+  const q2Y        = mobile ? 120  : 108;
+  const qaY        = mobile ? 148  : 130;
+  const l1Y        = mobile ? 230  : 194;
+  const l2Y        = mobile ? 272  : 226;
+  const fineY      = mobile ? 314  : 258;
+  const dotY       = mobile ? 400  : 322;
+  const dotR       = mobile ? 4.5  : 3.5;
+
+  // opening quote mark
+  svg.appendChild(mkText({
+    x: cx, y: openY,
+    'font-size': mobile ? 42 : 34,
+    'font-weight': 300,
+    fill: '#e8e4d8', opacity: 0.15,
+    'text-anchor': 'middle'
+  }, '"'));
+
+  // quote lines
+  const q1 = mkText({
+    id: 'q1', x: cx, y: q1Y,
+    'font-size': qFontSize, 'font-style': 'italic',
+    fill: '#c8c4b8', 'text-anchor': 'middle', 'letter-spacing': '0.06em'
+  });
+  const q2 = mkText({
+    id: 'q2', x: cx, y: q2Y,
+    'font-size': qFontSize, 'font-style': 'italic',
+    fill: '#c8c4b8', 'text-anchor': 'middle', 'letter-spacing': '0.06em'
+  });
+  const qa = mkText({
+    id: 'qa', x: cx, y: qaY,
+    'font-size': aFontSize,
+    fill: '#665f50', 'text-anchor': 'middle', 'letter-spacing': '0.14em'
+  });
+  svg.appendChild(q1);
+  svg.appendChild(q2);
+  svg.appendChild(qa);
+
+  // three lines
+  svg.appendChild(mkText({
+    x: cx, y: l1Y, 'font-size': lFontSize,
+    fill: '#d4d0c4', 'text-anchor': 'middle', 'letter-spacing': '0.04em'
+  }, 'something is compiling.'));
+
+  svg.appendChild(mkText({
+    x: cx, y: l2Y, 'font-size': lFontSize,
+    fill: '#7a766c', 'text-anchor': 'middle', 'letter-spacing': '0.04em'
+  }, 'it has been compiling for a while.'));
+
+  const fineEl = mkText({
+    id: 'fine-text', x: cx, y: fineY, 'font-size': lFontSize,
+    fill: '#3e3b34', 'text-anchor': 'middle', 'letter-spacing': '0.04em'
+  }, 'this is fine.');
+  fineEl.style.cursor = 'pointer';
+  svg.appendChild(fineEl);
+
+  // dot
+  svg.appendChild(mkCircle({
+    id: 'pulse-dot', cx: cx, cy: dotY, r: dotR, fill: '#ff9f0a'
+  }));
+
+  // re-bind fine easter egg
+  bindFine();
+}
+
+buildSVG();
+window.addEventListener('resize', () => {
+  buildSVG();
+  drawGrid();
+  initSilk();
+});
+
+// ─────────────────────────────────────────
+// 2. GRID
+// ─────────────────────────────────────────
 const gridCanvas = document.getElementById('grid-canvas');
 function drawGrid() {
   const W   = gridCanvas.offsetWidth  || gridCanvas.parentElement.offsetWidth;
@@ -131,8 +226,7 @@ function drawGrid() {
   c.scale(dpr, dpr);
   c.fillStyle = '#141518';
   c.fillRect(0, 0, W, H);
-  // sparse grid: 68px step (was 34)
-  const step = 68;
+  const step = isMobile() ? 48 : 68;
   c.strokeStyle = '#1e2024';
   c.lineWidth = 0.7;
   for (let x = 0; x <= W; x += step) {
@@ -148,10 +242,10 @@ function drawGrid() {
   c.globalAlpha = 1;
 }
 setTimeout(drawGrid, 0);
-window.addEventListener('resize', drawGrid);
 
-// ── 2. DOT pulse + color shift ──
-const dot = document.getElementById('pulse-dot');
+// ─────────────────────────────────────────
+// 3. DOT pulse + color shift
+// ─────────────────────────────────────────
 const colorStops = [[255,159,10],[50,210,180],[160,100,255]];
 let dotT0 = null;
 const DOT_PERIOD = 5000;
@@ -166,13 +260,18 @@ function animateDot(ts) {
   const pos = (phase * seg) % seg;
   const idx = Math.floor(pos) % seg;
   const [r,g,b] = lerpColor(colorStops[idx], colorStops[(idx+1)%seg], pos - Math.floor(pos));
-  dot.setAttribute('fill', `rgb(${r},${g},${b})`);
-  dot.setAttribute('opacity', opacity.toFixed(3));
+  const dot = document.getElementById('pulse-dot');
+  if (dot) {
+    dot.setAttribute('fill', `rgb(${r},${g},${b})`);
+    dot.setAttribute('opacity', opacity.toFixed(3));
+  }
   requestAnimationFrame(animateDot);
 }
 requestAnimationFrame(animateDot);
 
-// ── 3. SILK — gentler physics ──
+// ─────────────────────────────────────────
+// 4. SILK
+// ─────────────────────────────────────────
 const silkCanvas = document.getElementById('silk-canvas');
 const panel      = document.getElementById('panel');
 let sW, sH, sCols, sRows, pts;
@@ -180,13 +279,14 @@ let sW, sH, sCols, sRows, pts;
 function initSilk() {
   sW    = panel.offsetWidth;
   sH    = panel.offsetHeight;
-  // fewer mesh points → smoother, lighter feel
   sCols = 36;
   sRows = Math.round(sCols * sH / sW);
   const dpr = window.devicePixelRatio || 1;
   silkCanvas.width  = sW * dpr;
   silkCanvas.height = sH * dpr;
-  silkCanvas.getContext('2d').scale(dpr, dpr);
+  const ctx = silkCanvas.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(dpr, dpr);
   pts = [];
   for (let r = 0; r <= sRows; r++) {
     for (let c = 0; c <= sCols; c++) {
@@ -197,14 +297,9 @@ function initSilk() {
   }
 }
 setTimeout(initSilk, 0);
-window.addEventListener('resize', initSilk);
 
 const waves = [];
-// much gentler constants
-const SPRING  = 0.10;   // softer restore (was 0.20)
-const DAMPING = 0.82;   // more damping → settles slower, calmer (was 0.74)
-const W_SPEED = 0.014;  // slower wave propagation (was 0.022)
-const W_FORCE = 2.2;    // weaker impulse (was 6.5)
+const SPRING = 0.10, DAMPING = 0.82, W_SPEED = 0.014, W_FORCE = 2.2;
 
 function addWave(px, py) {
   const rect = panel.getBoundingClientRect();
@@ -217,18 +312,16 @@ function tickSilk() {
   waves.forEach(w => {
     w.t += W_SPEED;
     pts.forEach(p => {
-      const dx   = p.ox - w.x;
-      const dy   = p.oy - w.y;
+      const dx   = p.ox - w.x, dy = p.oy - w.y;
       const dist = Math.sqrt(dx*dx + dy*dy);
       const wavefront = w.t * maxD * 0.55;
-      const spread    = maxD * 0.10;   // wider envelope → smoother falloff
+      const spread    = maxD * 0.10;
       const envelope  = Math.exp(-((dist - wavefront)**2) / (2 * spread**2));
       if (envelope > 0.001) {
         const angle = Math.atan2(dy, dx);
         const force = envelope * W_FORCE;
         p.vx += Math.cos(angle) * force * 0.10;
         p.vy += Math.sin(angle) * force * 0.10;
-        // gentle transverse shimmer
         p.vy += Math.sin(dist * 0.04 - w.t * 16) * envelope * force * 0.4;
       }
     });
@@ -237,12 +330,10 @@ function tickSilk() {
     if (waves[i].t > 2.4) waves.splice(i, 1);
   }
   pts.forEach(p => {
-    const fx = (p.ox - p.x) * SPRING;
-    const fy = (p.oy - p.y) * SPRING;
+    const fx = (p.ox - p.x) * SPRING, fy = (p.oy - p.y) * SPRING;
     p.vx = (p.vx + fx) * DAMPING;
     p.vy = (p.vy + fy) * DAMPING;
-    p.x += p.vx;
-    p.y += p.vy;
+    p.x += p.vx; p.y += p.vy;
   });
 }
 
@@ -250,27 +341,25 @@ function drawSilk() {
   if (!pts || !sW) return;
   const ctx = silkCanvas.getContext('2d');
   ctx.clearRect(0, 0, sW, sH);
-  // horizontal
   for (let r = 0; r <= sRows; r++) {
     ctx.beginPath();
     for (let c = 0; c <= sCols; c++) {
-      const p    = pts[r * (sCols+1) + c];
-      const disp = Math.sqrt((p.x-p.ox)**2 + (p.y-p.oy)**2);
-      ctx.strokeStyle = `rgba(232,228,216,${Math.min(0.18, 0.01 + disp*0.016).toFixed(3)})`;
+      const p    = pts[r*(sCols+1)+c];
+      const disp = Math.sqrt((p.x-p.ox)**2+(p.y-p.oy)**2);
+      ctx.strokeStyle = `rgba(232,228,216,${Math.min(0.18,0.01+disp*0.016).toFixed(3)})`;
       ctx.lineWidth = 0.6;
-      c === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+      c === 0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y);
     }
     ctx.stroke();
   }
-  // vertical
   for (let c = 0; c <= sCols; c++) {
     ctx.beginPath();
     for (let r = 0; r <= sRows; r++) {
-      const p    = pts[r * (sCols+1) + c];
-      const disp = Math.sqrt((p.x-p.ox)**2 + (p.y-p.oy)**2);
-      ctx.strokeStyle = `rgba(232,228,216,${Math.min(0.14, 0.01 + disp*0.012).toFixed(3)})`;
+      const p    = pts[r*(sCols+1)+c];
+      const disp = Math.sqrt((p.x-p.ox)**2+(p.y-p.oy)**2);
+      ctx.strokeStyle = `rgba(232,228,216,${Math.min(0.14,0.01+disp*0.012).toFixed(3)})`;
       ctx.lineWidth = 0.6;
-      r === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+      r === 0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y);
     }
     ctx.stroke();
   }
@@ -280,8 +369,15 @@ function loopSilk() { tickSilk(); drawSilk(); requestAnimationFrame(loopSilk); }
 requestAnimationFrame(loopSilk);
 
 panel.addEventListener('click', e => addWave(e.clientX, e.clientY));
+// touch support
+panel.addEventListener('touchstart', e => {
+  const t = e.touches[0];
+  addWave(t.clientX, t.clientY);
+}, { passive: true });
 
-// ── 4. QUOTES ──
+// ─────────────────────────────────────────
+// 5. QUOTES
+// ─────────────────────────────────────────
 const quotes = [
   { l1: "Premature optimization",       l2: "is the root of all evil.",        a: "— Donald Knuth"     },
   { l1: "Talk is cheap.",                l2: "Show me the code.",               a: "— Linus Torvalds"   },
@@ -290,10 +386,12 @@ const quotes = [
   { l1: "Simplicity is",                 l2: "the ultimate sophistication.",    a: "— Leonardo da Vinci"},
   { l1: "It works on",                   l2: "my machine.",                     a: "— Every Developer"  },
 ];
-let qi = 0;
+let qi = Math.floor(Math.random() * quotes.length);
+
 function setQuote(i, fade) {
-  const q = quotes[i];
+  const q   = quotes[i];
   const els = ['q1','q2','qa'].map(id => document.getElementById(id));
+  if (!els[0]) return;
   if (fade) {
     els.forEach(el => { el.style.transition='opacity 0.4s'; el.style.opacity=0; });
     setTimeout(() => {
@@ -304,10 +402,9 @@ function setQuote(i, fade) {
     els[0].textContent=q.l1; els[1].textContent=q.l2; els[2].textContent=q.a;
   }
 }
-qi = Math.floor(Math.random() * quotes.length);
 setQuote(qi, false);
 
-document.getElementById('main-svg').addEventListener('click', function(e) {
+svg.addEventListener('click', function(e) {
   const rect = this.getBoundingClientRect();
   if ((e.clientY - rect.top) / rect.height < 0.42) {
     qi = (qi+1) % quotes.length;
@@ -315,31 +412,40 @@ document.getElementById('main-svg').addEventListener('click', function(e) {
   }
 });
 
-// ── 5. "this is fine." easter egg ──
+// ─────────────────────────────────────────
+// 6. "this is fine." easter egg
+// ─────────────────────────────────────────
 const fineAlts = ["this is fine.","no, really.","i'm not okay.","help.","... fine."];
 let fineCount = 0;
-const finEl = document.getElementById('fine-text');
-finEl.style.cursor = 'pointer';
-finEl.addEventListener('click', function(e) {
-  e.stopPropagation();
-  this.textContent = fineAlts[++fineCount % fineAlts.length];
-});
 
-// ── 6. KONAMI ──
-const konami=[38,38,40,40,37,39,37,39,66,65]; let ki=0;
+function bindFine() {
+  const el = document.getElementById('fine-text');
+  if (!el) return;
+  el.style.cursor = 'pointer';
+  el.addEventListener('click', function(e) {
+    e.stopPropagation();
+    this.textContent = fineAlts[++fineCount % fineAlts.length];
+  });
+}
+
+// ─────────────────────────────────────────
+// 7. KONAMI
+// ─────────────────────────────────────────
+const konami = [38,38,40,40,37,39,37,39,66,65]; let ki = 0;
 document.addEventListener('keydown', e => {
-  ki = (e.keyCode===konami[ki]) ? ki+1 : 0;
-  if (ki===konami.length) {
-    ki=0;
+  ki = (e.keyCode === konami[ki]) ? ki+1 : 0;
+  if (ki === konami.length) {
+    ki = 0;
     document.body.classList.add('glitch');
-    setTimeout(()=>document.body.classList.remove('glitch'),300);
-    showToast('↑↑↓↓←→←→BA  //  still compiling.');
+    setTimeout(() => document.body.classList.remove('glitch'), 300);
+    showToast('still compiling.');
   }
 });
+
 function showToast(msg) {
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),3000);
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
 }
 </script>
 </body>
