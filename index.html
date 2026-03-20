@@ -1,414 +1,265 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Something is growing here · Built with Claude Code</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Inter+Tight:ital,wght@0,700;0,800;1,700;1,800&display=swap" rel="stylesheet">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>dryrun.cc — Co-Evolution.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #030610; /* 深藏青色背景 */
+            --wireframe-color: rgba(71, 85, 105, 0.4); /* 极淡的冷灰蓝线条 */
+            --stream-color: #00D4FF; /* 大胆轻快的青绿色流光 */
+            --text-primary: #FFFFFF;
+            --text-secondary: #94A3B8;
+            --text-tertiary: rgba(148, 163, 184, 0.3);
+        }
 
-:root {
-  --bg:       #090909;
-  --bg2:      #0f0f0f;
-  --border:   rgba(255,255,255,0.08);
-  --border2:  rgba(255,255,255,0.14);
-  --t1:       #f0f0f0;
-  --t2:       #666;
-  --t3:       #333;
-  --accent:   #5e6ad2;   /* Linear's signature indigo */
-  --IT:       'Inter Tight', 'Inter', sans-serif;
-  --I:        'Inter', sans-serif;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
 
-html, body {
-  width: 100%; height: 100%;
-  background: var(--bg);
-  color: var(--t1);
-  font-family: var(--I);
-  -webkit-font-smoothing: antialiased;
-  overflow: hidden;
-}
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Geist Mono', monospace;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 60px;
+            overflow: hidden; /* 保持整洁 */
+        }
 
-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100dvh;
-}
+        /* 移动端间距调整 */
+        @media (max-width: 768px) {
+            body { padding: 30px; }
+        }
 
-/* ── LINEAR-STYLE gradient orb ── */
-.orb {
-  position: fixed;
-  width: 900px; height: 900px;
-  border-radius: 50%;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -60%);
-  background: conic-gradient(
-    from 180deg at 50% 50%,
-    #08aeea 0deg,
-    #2af598 72deg,
-    #b5fffc 120deg,
-    #ff5acd 216deg,
-    #5e6ad2 288deg,
-    #08aeea 360deg
-  );
-  filter: blur(140px);
-  opacity: 0.07;
-  pointer-events: none;
-  z-index: 0;
-  animation: orb-drift 20s ease-in-out infinite alternate;
-}
-@keyframes orb-drift {
-  from { transform: translate(-50%, -60%) scale(1); }
-  to   { transform: translate(-50%, -58%) scale(1.06); }
-}
+        /* --- 核心视觉：保留原有 3D 参数化流光网格 (秩序与涌现) --- */
+        .order-emerge-visual {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            perspective: 1000px;
+            z-index: 1;
+        }
 
-/* ── page shell ── */
-.page {
-  position: relative; z-index: 1;
-  width: min(860px, 92vw);
-  height: min(580px, 92dvh);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
+        /* 移动端缩小视觉尺寸 */
+        @media (max-width: 768px) {
+            .order-emerge-visual {
+                width: 300px;
+                height: 300px;
+            }
+        }
 
-/* ── top nav strip ── */
-.nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 0;
-  flex-shrink: 0;
-}
+        .mesh {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            animation: mesh-rotate 30s linear infinite; /* 极其缓慢的旋转 */
+            opacity: 0.8; /* 默认半透明 */
+        }
 
-.nav-logo {
-  width: 20px; height: 20px;
-  background: var(--accent);
-  border-radius: 5px;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.nav-logo svg { width: 12px; height: 12px; }
+        /* 生成球体的经纬线 (代表秩序) */
+        .ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 1px solid var(--wireframe-color);
+            border-radius: 50%;
+            backface-visibility: hidden;
+            animation: line-breathe 10s ease-in-out infinite; /* 舒缓呼吸感 */
+        }
 
-.nav-status {
-  display: flex; align-items: center; gap: 7px;
-  font-family: var(--I);
-  font-size: 11px;
-  font-weight: 400;
-  color: var(--t3);
-  letter-spacing: 0.01em;
-}
-.nav-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: #3d9970;
-  animation: ndot 3s ease-in-out infinite;
-}
-@keyframes ndot {
-  0%,100% { opacity: 1; }
-  50%      { opacity: 0.35; }
-}
+        /* CSS 变量控制旋转角度和动画延迟，模拟立体感 */
+        .ring:nth-child(1)  { transform: rotateY(0deg); animation-delay: 0s; }
+        .ring:nth-child(2)  { transform: rotateY(22.5deg); animation-delay: 0.5s; }
+        .ring:nth-child(3)  { transform: rotateY(45deg); animation-delay: 1.0s; }
+        .ring:nth-child(4)  { transform: rotateY(67.5deg); animation-delay: 1.5s; }
+        .ring:nth-child(5)  { transform: rotateY(90deg); animation-delay: 2.0s; }
+        .ring:nth-child(6)  { transform: rotateY(112.5deg); animation-delay: 2.5s; }
+        .ring:nth-child(7)  { transform: rotateY(135deg); animation-delay: 3.0s; }
+        .ring:nth-child(8)  { transform: rotateY(157.5deg); animation-delay: 3.5s; }
+        .ring:nth-child(9)  { transform: rotateX(90deg); border-width: 2px; } /* 横向赤道线 */
 
-/* ── HERO ── */
-.hero {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 0;
-  position: relative;
-}
+        /* 涌现的流光特效 (代表智能) */
+        .mesh::before {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--stream-color) 0%, transparent 70%);
+            animation: stream-bloom 10s linear infinite;
+            filter: blur(2px);
+            opacity: 0.9;
+            backface-visibility: hidden;
+        }
 
-/* subtle grid lines — Linear does this */
-.hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-  background-size: 80px 80px;
-  mask-image: radial-gradient(ellipse 70% 80% at 50% 50%, black 30%, transparent 100%);
-  pointer-events: none;
-}
+        /* --- 文案与排版 (克制、代码化) --- */
+        .container {
+            position: relative;
+            z-index: 10;
+        }
 
-.label {
-  font-family: var(--I);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  color: var(--t3);
-  text-transform: uppercase;
-  margin-bottom: 24px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.label::before {
-  content: '';
-  width: 16px; height: 1px;
-  background: var(--t3);
-}
+        header {
+            font-size: 11px;
+            tracking: 0.3em;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+        }
 
-/* headline — Inter Tight, Linear-style sizing */
-h1 {
-  font-family: var(--IT);
-  font-size: clamp(44px, 7.5vw, 88px);
-  font-weight: 800;
-  line-height: 1.0;
-  letter-spacing: -0.04em;
-  color: var(--t1);
-  margin-bottom: 0;
-  position: relative; z-index: 1;
-}
+        main {
+            margin-top: 15vh;
+        }
 
-h1 .italic {
-  font-style: italic;
-  font-weight: 700;
-  /* Linear uses gradient text for impact */
-  background: linear-gradient(90deg, #c8c8c8 0%, #666 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+        .hero-title {
+            font-size: clamp(36px, 10vw, 72px); /* 响应式极大字体，强调恢弘感 */
+            font-weight: 200; /* 极细字体，强调精密感 */
+            letter-spacing: -0.05em;
+            background: linear-gradient(180deg, #FFFFFF 0%, rgba(255,255,255,0.8) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
 
-h1 .accent {
-  /* indigo accent — Linear's brand color */
-  background: linear-gradient(90deg, #8892f8 0%, #5e6ad2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-style: normal;
-}
+        .hero-slogan {
+            font-size: clamp(16px, 4vw, 24px);
+            color: var(--text-secondary);
+            font-weight: 300;
+            line-height: 1.3;
+            max-width: 700px;
+        }
 
-.sub {
-  font-family: var(--I);
-  font-size: clamp(13px, 1.5vw, 15px);
-  font-weight: 300;
-  color: var(--t2);
-  line-height: 1.65;
-  margin-top: 24px;
-  max-width: 380px;
-  position: relative; z-index: 1;
-}
+        .meta-text {
+            margin-top: 40px;
+            font-size: 13px;
+            color: var(--text-tertiary);
+            max-width: 450px;
+            line-height: 1.7;
+            text-transform: lowercase;
+            border-left: 1px solid var(--wireframe-color);
+            padding-left: 20px;
+        }
 
-/* ── BOTTOM SECTION ── */
-.bottom {
-  flex-shrink: 0;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 8px;
-  align-items: stretch;
-}
+        /* --- 落款与致谢 --- */
+        footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
 
-/* glass card — core Linear UI element */
-.card {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  backdrop-filter: blur(12px);
-  transition: border-color 0.2s;
-}
-.card:hover { border-color: var(--border2); }
+        .footer-left p {
+            margin-bottom: 4px;
+        }
 
-.card-main {
-  padding: 14px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
+        .typing::after {
+            content: '_';
+            animation: cursor-blink 1.2s step-end infinite;
+        }
 
-.card-copy {
-  font-family: var(--I);
-  font-size: clamp(12px, 1.5vw, 14px);
-  font-weight: 400;
-  color: var(--t2);
-  line-height: 1.5;
-}
+        .design-credit {
+            writing-mode: vertical-rl;
+            letter-spacing: 0.2em;
+            opacity: 0.3;
+            text-transform: uppercase;
+        }
 
-.card-copy strong {
-  color: var(--t1);
-  font-weight: 500;
-}
+        /* --- Animations (保留全套原有逻辑) --- */
+        
+        @keyframes mesh-rotate {
+            0% { transform: rotateX(0deg) rotateY(0deg); }
+            100% { transform: rotateX(360deg) rotateY(360deg); }
+        }
 
-.card-meta {
-  font-size: 11px;
-  font-weight: 400;
-  color: var(--t3);
-  text-align: right;
-  flex-shrink: 0;
-  line-height: 1.6;
-}
-.card-meta a {
-  color: var(--t2);
-  text-decoration: none;
-  transition: color 0.2s;
-  font-size: 11px;
-}
-.card-meta a:hover { color: var(--t1); }
+        @keyframes line-breathe {
+            0%, 100% { border-color: rgba(71, 85, 105, 0.4); opacity: 0.8; }
+            50% { border-color: rgba(71, 85, 105, 0.7); opacity: 1; }
+        }
 
-/* building label card */
-.dot-card {
-  padding: 0 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 110px;
-  flex-shrink: 0;
-}
+        @keyframes stream-bloom {
+            0% { transform: scale(1) translate3d(0px, 150px, 0); opacity: 0.6; }
+            50% { transform: scale(1.1) translate3d(0px, -150px, 0); opacity: 1; filter: blur(3px); }
+            100% { transform: scale(1) translate3d(0px, 150px, 0); opacity: 0.6; }
+        }
 
-.building-label {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--I);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--t3);
-}
+        @keyframes cursor-blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
 
-/* animated progress bar */
-.building-bar {
-  display: block;
-  width: 40px;
-  height: 2px;
-  background: var(--t3);
-  border-radius: 2px;
-  position: relative;
-  overflow: hidden;
-}
-.building-bar::after {
-  content: '';
-  position: absolute;
-  left: -100%;
-  top: 0; bottom: 0;
-  width: 100%;
-  background: linear-gradient(90deg, transparent, #5e6ad2, transparent);
-  animation: bar-sweep 2s ease-in-out infinite;
-}
-@keyframes bar-sweep {
-  0%   { left: -100%; }
-  100% { left: 100%; }
-}
-
-/* ── toast ── */
-.toast {
-  position: fixed; bottom: 24px; left: 50%;
-  transform: translateX(-50%) translateY(12px);
-  background: rgba(15,15,15,0.95);
-  border: 1px solid var(--border2);
-  border-radius: 8px;
-  color: var(--t2); font-family: var(--I);
-  font-size: 11px; font-weight: 400;
-  letter-spacing: 0.02em; padding: 9px 18px;
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.25s, transform 0.25s;
-  white-space: nowrap; z-index: 99;
-}
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-/* ── mobile ── */
-@media (max-width: 560px) {
-  .page { width: 96vw; height: 96dvh; }
-  h1 { font-size: clamp(38px, 12vw, 60px); }
-  .sub { font-size: 13px; }
-  .bottom { grid-template-columns: 1fr; }
-  .dot-card { padding: 12px 0; border-radius: 10px; }
-  .card-main { flex-direction: column; align-items: flex-start; gap: 10px; }
-  .card-meta { text-align: left; }
-}
-</style>
+    </style>
 </head>
 <body>
 
-<div class="orb"></div>
-
-<div class="page">
-
-
-
-  <!-- hero -->
-  <div class="hero">
-    <div class="label">coming soon</div>
-    <h1>
-      Something<br>
-      <span class="italic">is growing</span><br>
-      <span class="accent">here.</span>
-    </h1>
-    <p class="sub">
-      Ideas, writing, and things worth making.<br>
-      The best is still being compiled.
-    </p>
-  </div>
-
-  <!-- bottom -->
-  <div class="bottom">
-    <div class="card">
-      <div class="card-main">
-        <div class="card-copy">
-          <strong>Stay tuned.</strong> — A space taking shape, one commit at a time.
+    <div class="order-emerge-visual">
+        <div class="mesh">
+            <div class="ring"></div>
+            <div class="ring:nth-child(1)"></div>
+            <div class="ring"></div>
+            <div class="ring:nth-child(2)"></div>
+            <div class="ring"></div>
+            <div class="ring:nth-child(3)"></div>
+            <div class="ring"></div>
+            <div class="ring:nth-child(4)"></div>
+            <div class="ring"></div>
+            <div class="ring:nth-child(5)"></div>
+            <div class="ring"></div>
+            <div class="ring:nth-child(6)"></div>
+            <div class="ring"></div>
+            <div class="ring:nth-child(7)"></div>
+            <div class="ring"></div>
+            <div class="ring:nth-child(8)"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
         </div>
-        <div class="card-meta">
-          Built with<br>
-          <a href="https://claude.ai/code" target="_blank">Claude Code ↗</a>
+    </div>
+
+    <div class="container">
+        <header>
+            Init: dry run / dimensions
+        </header>
+
+        <main>
+            <h1 class="hero-title">
+                Co-Evolution.
+            </h1>
+            <p class="hero-slogan">
+                Rational intelligence, shaped by thoughts.
+                <span style="font-size: 0.8em; color: rgba(148, 163, 184, 0.6); display: block; margin-top: 6px;">
+                    理性智能，思想铸就。
+                </span>
+            </p>
+            <p class="meta-text">
+                // > "Computers are useless. They can only give you answers." — Picasso<br>
+                // > 电脑没啥用，它们只会给答案。（提问才是人的特权）
+            </p>
+        </main>
+    </div>
+
+    <footer>
+        <div class="footer-left">
+            <p>> Status: Phase One / Evolving [One commit at a time.<span class="typing"></span>]</p>
         </div>
-      </div>
-    </div>
-    <div class="card dot-card">
-      <div class="building-label">
-        <span class="building-bar"></span>
-        building
-      </div>
-    </div>
-  </div>
+        <div class="design-credit">
+            Designed by Gemini
+        </div>
+    </footer>
 
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-// subtle click ripple
-document.addEventListener('click', e => {
-  const r = document.createElement('div');
-  Object.assign(r.style, {
-    position: 'fixed',
-    borderRadius: '50%',
-    pointerEvents: 'none',
-    border: '1px solid rgba(94,106,210,0.25)',
-    width: '8px', height: '8px',
-    left: e.clientX + 'px', top: e.clientY + 'px',
-    transform: 'translate(-50%,-50%) scale(0)',
-    animation: 'rout .55s cubic-bezier(.2,.8,.3,1) forwards',
-    zIndex: 50
-  });
-  if (!document.getElementById('rout-style')) {
-    const s = document.createElement('style');
-    s.id = 'rout-style';
-    s.textContent = '@keyframes rout{to{transform:translate(-50%,-50%) scale(1);opacity:0;width:70px;height:70px}}';
-    document.head.appendChild(s);
-  }
-  document.body.appendChild(r);
-  setTimeout(() => r.remove(), 580);
-});
-
-// konami
-const km = [38,38,40,40,37,39,37,39,66,65]; let ki = 0;
-document.addEventListener('keydown', e => {
-  ki = e.keyCode === km[ki] ? ki+1 : 0;
-  if (ki === km.length) {
-    ki = 0;
-    const t = document.getElementById('toast');
-    t.textContent = '// still compiling — expected behavior.';
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
-  }
-});
-</script>
 </body>
 </html>
