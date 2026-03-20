@@ -136,23 +136,25 @@ function buildSVG() {
   const cx = VW / 2;
 
   // layout params
-  const qFontSize  = mobile ? 13   : 12;
+  const qFontSize  = mobile ? 12   : 12;
   const aFontSize  = mobile ? 10   : 9.5;
-  const lFontSize  = mobile ? 17   : 15;
-  const openY      = mobile ? 52   : 52;
-  const q1Y        = mobile ? 96   : 88;
-  const q2Y        = mobile ? 120  : 108;
-  const qaY        = mobile ? 148  : 130;
-  const l1Y        = mobile ? 230  : 194;
-  const l2Y        = mobile ? 272  : 226;
-  const fineY      = mobile ? 314  : 258;
-  const dotY       = mobile ? 400  : 322;
-  const dotR       = mobile ? 4.5  : 3.5;
+  const lFontSize  = mobile ? 14   : 15;
+  const openY      = mobile ? 44   : 52;
+  const q1Y        = mobile ? 84   : 88;
+  const q2Y        = mobile ? 104  : 108;
+  const qaY        = mobile ? 128  : 130;
+  const l1Y        = mobile ? 206  : 194;
+  // mobile: long line split into two tspans
+  const l2Y        = mobile ? 244  : 226;
+  const l2bY       = mobile ? 264  : 0;   // second tspan, mobile only
+  const fineY      = mobile ? 308  : 258;
+  const dotY       = mobile ? 390  : 322;
+  const dotR       = mobile ? 4    : 3.5;
 
   // opening quote mark
   svg.appendChild(mkText({
     x: cx, y: openY,
-    'font-size': mobile ? 42 : 34,
+    'font-size': mobile ? 36 : 34,
     'font-weight': 300,
     fill: '#e8e4d8', opacity: 0.15,
     'text-anchor': 'middle'
@@ -178,16 +180,33 @@ function buildSVG() {
   svg.appendChild(q2);
   svg.appendChild(qa);
 
-  // three lines
+  // line 1
   svg.appendChild(mkText({
     x: cx, y: l1Y, 'font-size': lFontSize,
     fill: '#d4d0c4', 'text-anchor': 'middle', 'letter-spacing': '0.04em'
   }, 'something is compiling.'));
 
-  svg.appendChild(mkText({
-    x: cx, y: l2Y, 'font-size': lFontSize,
-    fill: '#7a766c', 'text-anchor': 'middle', 'letter-spacing': '0.04em'
-  }, 'it has been compiling for a while.'));
+  // line 2 — split on mobile to avoid overflow
+  if (mobile) {
+    const l2el = document.createElementNS(NS, 'text');
+    l2el.setAttribute('font-size', lFontSize);
+    l2el.setAttribute('fill', '#7a766c');
+    l2el.setAttribute('text-anchor', 'middle');
+    l2el.setAttribute('letter-spacing', '0.04em');
+    const ts1 = document.createElementNS(NS, 'tspan');
+    ts1.setAttribute('x', cx); ts1.setAttribute('y', l2Y);
+    ts1.textContent = 'it has been compiling';
+    const ts2 = document.createElementNS(NS, 'tspan');
+    ts2.setAttribute('x', cx); ts2.setAttribute('y', l2bY);
+    ts2.textContent = 'for a while.';
+    l2el.appendChild(ts1); l2el.appendChild(ts2);
+    svg.appendChild(l2el);
+  } else {
+    svg.appendChild(mkText({
+      x: cx, y: l2Y, 'font-size': lFontSize,
+      fill: '#7a766c', 'text-anchor': 'middle', 'letter-spacing': '0.04em'
+    }, 'it has been compiling for a while.'));
+  }
 
   const fineEl = mkText({
     id: 'fine-text', x: cx, y: fineY, 'font-size': lFontSize,
