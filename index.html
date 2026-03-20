@@ -8,15 +8,20 @@
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { width: 100%; height: 100%; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
 
 body {
-  background: #0e0f11;
+  background: #f5f2ec;
   font-family: 'JetBrains Mono', 'Menlo', monospace;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   cursor: crosshair;
 }
@@ -24,18 +29,18 @@ body {
 .panel {
   position: relative;
   flex-shrink: 0;
-  border-radius: 2px;
   overflow: hidden;
-  /* desktop */
   width: min(660px, 86vw);
-  aspect-ratio: 660 / 380;
+  aspect-ratio: 660 / 400;
+  border: 1px solid rgba(30,24,16,0.10);
 }
 
-/* portrait mobile */
 @media (max-width: 540px) {
   .panel {
-    width: 92vw;
-    aspect-ratio: 3 / 4;
+    width: 100vw;
+    height: 100dvh;
+    aspect-ratio: unset;
+    border: none;
   }
 }
 
@@ -54,21 +59,13 @@ body {
   height: 100%;
 }
 
-body.glitch { animation: bg-glitch 0.3s steps(2) forwards; }
-@keyframes bg-glitch {
-  0%   { background: #0e0f11; }
-  33%  { background: #0a1410; }
-  66%  { background: #14080a; }
-  100% { background: #0e0f11; }
-}
-
 .toast {
   position: fixed;
   bottom: 36px;
   left: 50%;
   transform: translateX(-50%) translateY(20px);
-  background: #ff9f0a;
-  color: #0e0f11;
+  background: #1e1810;
+  color: #f5f2ec;
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.1em;
@@ -108,7 +105,43 @@ body.glitch { animation: bg-glitch 0.3s steps(2) forwards; }
 const isMobile = () => window.innerWidth <= 540;
 
 // ─────────────────────────────────────────
-// 1. BUILD SVG — adaptive layout
+// 1. GRID — washi paper feel
+// ─────────────────────────────────────────
+const gridCanvas = document.getElementById('grid-canvas');
+function drawGrid() {
+  const W   = gridCanvas.offsetWidth  || gridCanvas.parentElement.offsetWidth;
+  const H   = gridCanvas.offsetHeight || gridCanvas.parentElement.offsetHeight;
+  const dpr = window.devicePixelRatio || 1;
+  gridCanvas.width  = W * dpr;
+  gridCanvas.height = H * dpr;
+  const c = gridCanvas.getContext('2d');
+  c.scale(dpr, dpr);
+
+  // warm off-white base
+  c.fillStyle = '#f5f2ec';
+  c.fillRect(0, 0, W, H);
+
+  // very faint grid — like graph paper
+  const step = isMobile() ? 40 : 55;
+  c.strokeStyle = 'rgba(30,24,16,0.07)';
+  c.lineWidth = 0.6;
+  for (let x = 0; x <= W; x += step) {
+    c.beginPath(); c.moveTo(x, 0); c.lineTo(x, H); c.stroke();
+  }
+  for (let y = 0; y <= H; y += step) {
+    c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke();
+  }
+
+  // single accent line — top edge, thin vermilion
+  c.strokeStyle = 'rgba(180,60,30,0.35)';
+  c.lineWidth = 1.5;
+  c.beginPath(); c.moveTo(0, 0); c.lineTo(W, 0); c.stroke();
+}
+setTimeout(drawGrid, 0);
+window.addEventListener('resize', drawGrid);
+
+// ─────────────────────────────────────────
+// 2. BUILD SVG
 // ─────────────────────────────────────────
 const svg = document.getElementById('main-svg');
 const NS  = 'http://www.w3.org/2000/svg';
@@ -124,75 +157,88 @@ function mkCircle(attrs) {
   Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k, v));
   return el;
 }
+function mkLine(attrs) {
+  const el = document.createElementNS(NS, 'line');
+  Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k, v));
+  return el;
+}
 
 function buildSVG() {
   svg.innerHTML = '';
   const mobile = isMobile();
 
-  // viewBox: portrait on mobile, landscape on desktop
-  const VW = mobile ? 330 : 660;
-  const VH = mobile ? 440 : 380;
+  let VW, VH;
+  if (mobile) {
+    VW = 330;
+    VH = Math.round(330 * window.innerHeight / window.innerWidth);
+  } else {
+    VW = 660; VH = 400;
+  }
   svg.setAttribute('viewBox', `0 0 ${VW} ${VH}`);
   const cx = VW / 2;
 
-  // layout params
-  const qFontSize  = mobile ? 12   : 12;
-  const aFontSize  = mobile ? 10   : 9.5;
-  const lFontSize  = mobile ? 14   : 15;
-  const openY      = mobile ? 44   : 52;
-  const q1Y        = mobile ? 84   : 88;
-  const q2Y        = mobile ? 104  : 108;
-  const qaY        = mobile ? 128  : 130;
-  const l1Y        = mobile ? 206  : 194;
-  // mobile: long line split into two tspans
-  const l2Y        = mobile ? 244  : 226;
-  const l2bY       = mobile ? 264  : 0;   // second tspan, mobile only
-  const fineY      = mobile ? 308  : 258;
-  const dotY       = mobile ? 390  : 322;
-  const dotR       = mobile ? 4    : 3.5;
+  const qSize  = mobile ? 12  : 11.5;
+  const aSize  = mobile ? 9.5 : 9;
+  const lSize  = mobile ? 13  : 14;
 
-  // opening quote mark
+  const openY  = mobile ? VH * 0.10 : 58;
+  const q1Y    = mobile ? VH * 0.20 : 96;
+  const q2Y    = mobile ? VH * 0.27 : 114;
+  const qaY    = mobile ? VH * 0.34 : 136;
+  // thin separator line
+  const sepY   = mobile ? VH * 0.42 : 158;
+  const l1Y    = mobile ? VH * 0.52 : 202;
+  const l2Y    = mobile ? VH * 0.61 : 232;
+  const l2bY   = mobile ? VH * 0.68 : 0;
+  const fineY  = mobile ? VH * 0.77 : 262;
+  const dotY   = mobile ? VH * 0.90 : 338;
+  const dotR   = mobile ? 3.5       : 3;
+
+  // ink-wash opening mark
   svg.appendChild(mkText({
     x: cx, y: openY,
-    'font-size': mobile ? 36 : 34,
+    'font-size': mobile ? 32 : 28,
     'font-weight': 300,
-    fill: '#e8e4d8', opacity: 0.15,
+    fill: '#1e1810', opacity: 0.12,
     'text-anchor': 'middle'
-  }, '"'));
+  }, '\u201C'));
 
-  // quote lines
+  // quote
   const q1 = mkText({
     id: 'q1', x: cx, y: q1Y,
-    'font-size': qFontSize, 'font-style': 'italic',
-    fill: '#c8c4b8', 'text-anchor': 'middle', 'letter-spacing': '0.06em'
+    'font-size': qSize, 'font-style': 'italic',
+    fill: '#3a3228', 'text-anchor': 'middle', 'letter-spacing': '0.05em'
   });
   const q2 = mkText({
     id: 'q2', x: cx, y: q2Y,
-    'font-size': qFontSize, 'font-style': 'italic',
-    fill: '#c8c4b8', 'text-anchor': 'middle', 'letter-spacing': '0.06em'
+    'font-size': qSize, 'font-style': 'italic',
+    fill: '#3a3228', 'text-anchor': 'middle', 'letter-spacing': '0.05em'
   });
   const qa = mkText({
     id: 'qa', x: cx, y: qaY,
-    'font-size': aFontSize,
-    fill: '#665f50', 'text-anchor': 'middle', 'letter-spacing': '0.14em'
+    'font-size': aSize,
+    fill: '#a09080', 'text-anchor': 'middle', 'letter-spacing': '0.16em'
   });
-  svg.appendChild(q1);
-  svg.appendChild(q2);
-  svg.appendChild(qa);
+  svg.appendChild(q1); svg.appendChild(q2); svg.appendChild(qa);
 
-  // line 1
+  // thin hairline separator
+  svg.appendChild(mkLine({
+    x1: cx - 32, y1: sepY, x2: cx + 32, y2: sepY,
+    stroke: 'rgba(30,24,16,0.15)', 'stroke-width': 0.5
+  }));
+
+  // three lines — ink gradient: dark → mid → ghost
   svg.appendChild(mkText({
-    x: cx, y: l1Y, 'font-size': lFontSize,
-    fill: '#d4d0c4', 'text-anchor': 'middle', 'letter-spacing': '0.04em'
+    x: cx, y: l1Y, 'font-size': lSize,
+    fill: '#2a221a', 'text-anchor': 'middle', 'letter-spacing': '0.03em'
   }, 'something is compiling.'));
 
-  // line 2 — split on mobile to avoid overflow
   if (mobile) {
     const l2el = document.createElementNS(NS, 'text');
-    l2el.setAttribute('font-size', lFontSize);
-    l2el.setAttribute('fill', '#7a766c');
+    l2el.setAttribute('font-size', lSize);
+    l2el.setAttribute('fill', '#7a6e62');
     l2el.setAttribute('text-anchor', 'middle');
-    l2el.setAttribute('letter-spacing', '0.04em');
+    l2el.setAttribute('letter-spacing', '0.03em');
     const ts1 = document.createElementNS(NS, 'tspan');
     ts1.setAttribute('x', cx); ts1.setAttribute('y', l2Y);
     ts1.textContent = 'it has been compiling';
@@ -203,78 +249,45 @@ function buildSVG() {
     svg.appendChild(l2el);
   } else {
     svg.appendChild(mkText({
-      x: cx, y: l2Y, 'font-size': lFontSize,
-      fill: '#7a766c', 'text-anchor': 'middle', 'letter-spacing': '0.04em'
+      x: cx, y: l2Y, 'font-size': lSize,
+      fill: '#7a6e62', 'text-anchor': 'middle', 'letter-spacing': '0.03em'
     }, 'it has been compiling for a while.'));
   }
 
   const fineEl = mkText({
-    id: 'fine-text', x: cx, y: fineY, 'font-size': lFontSize,
-    fill: '#3e3b34', 'text-anchor': 'middle', 'letter-spacing': '0.04em'
+    id: 'fine-text', x: cx, y: fineY, 'font-size': lSize,
+    fill: '#c4b8a8', 'text-anchor': 'middle', 'letter-spacing': '0.03em'
   }, 'this is fine.');
   fineEl.style.cursor = 'pointer';
   svg.appendChild(fineEl);
 
-  // dot
+  // dot — vermilion accent
   svg.appendChild(mkCircle({
-    id: 'pulse-dot', cx: cx, cy: dotY, r: dotR, fill: '#ff9f0a'
+    id: 'pulse-dot', cx: cx, cy: dotY, r: dotR, fill: '#b43c1e'
   }));
 
-  // re-bind fine easter egg
   bindFine();
 }
 
 buildSVG();
 window.addEventListener('resize', () => {
-  buildSVG();
-  drawGrid();
-  initSilk();
+  buildSVG(); drawGrid(); initSilk();
 });
 
 // ─────────────────────────────────────────
-// 2. GRID
+// 3. DOT pulse — slow, warm
 // ─────────────────────────────────────────
-const gridCanvas = document.getElementById('grid-canvas');
-function drawGrid() {
-  const W   = gridCanvas.offsetWidth  || gridCanvas.parentElement.offsetWidth;
-  const H   = gridCanvas.offsetHeight || gridCanvas.parentElement.offsetHeight;
-  const dpr = window.devicePixelRatio || 1;
-  gridCanvas.width  = W * dpr;
-  gridCanvas.height = H * dpr;
-  const c = gridCanvas.getContext('2d');
-  c.scale(dpr, dpr);
-  c.fillStyle = '#141518';
-  c.fillRect(0, 0, W, H);
-  const step = isMobile() ? 48 : 68;
-  c.strokeStyle = '#1e2024';
-  c.lineWidth = 0.7;
-  for (let x = 0; x <= W; x += step) {
-    c.beginPath(); c.moveTo(x, 0); c.lineTo(x, H); c.stroke();
-  }
-  for (let y = 0; y <= H; y += step) {
-    c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke();
-  }
-  c.strokeStyle = '#ff9f0a';
-  c.lineWidth = 0.6;
-  c.globalAlpha = 0.18;
-  c.strokeRect(0.5, 0.5, W - 1, H - 1);
-  c.globalAlpha = 1;
-}
-setTimeout(drawGrid, 0);
-
-// ─────────────────────────────────────────
-// 3. DOT pulse + color shift
-// ─────────────────────────────────────────
-const colorStops = [[255,159,10],[50,210,180],[160,100,255]];
+// vermilion → dusty rose → warm gold
+const colorStops = [[180,60,30],[200,130,90],[190,150,60]];
 let dotT0 = null;
-const DOT_PERIOD = 5000;
+const DOT_PERIOD = 6000;
 function lerpColor(a, b, t) {
   return a.map((v,i) => Math.round(v + (b[i]-v) * t));
 }
 function animateDot(ts) {
   if (!dotT0) dotT0 = ts;
   const phase   = ((ts - dotT0) % DOT_PERIOD) / DOT_PERIOD;
-  const opacity = 0.15 + 0.85 * (0.5 + 0.5 * Math.cos(phase * 2 * Math.PI));
+  const opacity = 0.2 + 0.8 * (0.5 + 0.5 * Math.cos(phase * 2 * Math.PI));
   const seg = colorStops.length;
   const pos = (phase * seg) % seg;
   const idx = Math.floor(pos) % seg;
@@ -289,7 +302,7 @@ function animateDot(ts) {
 requestAnimationFrame(animateDot);
 
 // ─────────────────────────────────────────
-// 4. SILK
+// 4. SILK ripple
 // ─────────────────────────────────────────
 const silkCanvas = document.getElementById('silk-canvas');
 const panel      = document.getElementById('panel');
@@ -317,7 +330,7 @@ function initSilk() {
 }
 setTimeout(initSilk, 0);
 
-const waves = [];
+const waves  = [];
 const SPRING = 0.10, DAMPING = 0.82, W_SPEED = 0.014, W_FORCE = 2.2;
 
 function addWave(px, py) {
@@ -331,27 +344,26 @@ function tickSilk() {
   waves.forEach(w => {
     w.t += W_SPEED;
     pts.forEach(p => {
-      const dx   = p.ox - w.x, dy = p.oy - w.y;
+      const dx = p.ox - w.x, dy = p.oy - w.y;
       const dist = Math.sqrt(dx*dx + dy*dy);
       const wavefront = w.t * maxD * 0.55;
       const spread    = maxD * 0.10;
-      const envelope  = Math.exp(-((dist - wavefront)**2) / (2 * spread**2));
+      const envelope  = Math.exp(-((dist-wavefront)**2)/(2*spread**2));
       if (envelope > 0.001) {
         const angle = Math.atan2(dy, dx);
         const force = envelope * W_FORCE;
         p.vx += Math.cos(angle) * force * 0.10;
         p.vy += Math.sin(angle) * force * 0.10;
-        p.vy += Math.sin(dist * 0.04 - w.t * 16) * envelope * force * 0.4;
+        p.vy += Math.sin(dist*0.04 - w.t*16) * envelope * force * 0.4;
       }
     });
   });
-  for (let i = waves.length - 1; i >= 0; i--) {
+  for (let i = waves.length-1; i >= 0; i--) {
     if (waves[i].t > 2.4) waves.splice(i, 1);
   }
   pts.forEach(p => {
-    const fx = (p.ox - p.x) * SPRING, fy = (p.oy - p.y) * SPRING;
-    p.vx = (p.vx + fx) * DAMPING;
-    p.vy = (p.vy + fy) * DAMPING;
+    const fx = (p.ox-p.x)*SPRING, fy = (p.oy-p.y)*SPRING;
+    p.vx = (p.vx+fx)*DAMPING; p.vy = (p.vy+fy)*DAMPING;
     p.x += p.vx; p.y += p.vy;
   });
 }
@@ -365,8 +377,9 @@ function drawSilk() {
     for (let c = 0; c <= sCols; c++) {
       const p    = pts[r*(sCols+1)+c];
       const disp = Math.sqrt((p.x-p.ox)**2+(p.y-p.oy)**2);
-      ctx.strokeStyle = `rgba(232,228,216,${Math.min(0.18,0.01+disp*0.016).toFixed(3)})`;
-      ctx.lineWidth = 0.6;
+      // warm ink tone for silk threads
+      ctx.strokeStyle = `rgba(30,20,10,${Math.min(0.12, 0.005+disp*0.013).toFixed(3)})`;
+      ctx.lineWidth = 0.5;
       c === 0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y);
     }
     ctx.stroke();
@@ -376,8 +389,8 @@ function drawSilk() {
     for (let r = 0; r <= sRows; r++) {
       const p    = pts[r*(sCols+1)+c];
       const disp = Math.sqrt((p.x-p.ox)**2+(p.y-p.oy)**2);
-      ctx.strokeStyle = `rgba(232,228,216,${Math.min(0.14,0.01+disp*0.012).toFixed(3)})`;
-      ctx.lineWidth = 0.6;
+      ctx.strokeStyle = `rgba(30,20,10,${Math.min(0.09, 0.005+disp*0.010).toFixed(3)})`;
+      ctx.lineWidth = 0.5;
       r === 0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y);
     }
     ctx.stroke();
@@ -388,7 +401,6 @@ function loopSilk() { tickSilk(); drawSilk(); requestAnimationFrame(loopSilk); }
 requestAnimationFrame(loopSilk);
 
 panel.addEventListener('click', e => addWave(e.clientX, e.clientY));
-// touch support
 panel.addEventListener('touchstart', e => {
   const t = e.touches[0];
   addWave(t.clientX, t.clientY);
@@ -412,11 +424,11 @@ function setQuote(i, fade) {
   const els = ['q1','q2','qa'].map(id => document.getElementById(id));
   if (!els[0]) return;
   if (fade) {
-    els.forEach(el => { el.style.transition='opacity 0.4s'; el.style.opacity=0; });
+    els.forEach(el => { el.style.transition='opacity 0.5s'; el.style.opacity=0; });
     setTimeout(() => {
       els[0].textContent=q.l1; els[1].textContent=q.l2; els[2].textContent=q.a;
       els.forEach(el => { el.style.opacity=1; });
-    }, 400);
+    }, 500);
   } else {
     els[0].textContent=q.l1; els[1].textContent=q.l2; els[2].textContent=q.a;
   }
@@ -425,7 +437,7 @@ setQuote(qi, false);
 
 svg.addEventListener('click', function(e) {
   const rect = this.getBoundingClientRect();
-  if ((e.clientY - rect.top) / rect.height < 0.42) {
+  if ((e.clientY - rect.top) / rect.height < 0.44) {
     qi = (qi+1) % quotes.length;
     setQuote(qi, true);
   }
@@ -436,7 +448,6 @@ svg.addEventListener('click', function(e) {
 // ─────────────────────────────────────────
 const fineAlts = ["this is fine.","no, really.","i'm not okay.","help.","... fine."];
 let fineCount = 0;
-
 function bindFine() {
   const el = document.getElementById('fine-text');
   if (!el) return;
@@ -455,12 +466,9 @@ document.addEventListener('keydown', e => {
   ki = (e.keyCode === konami[ki]) ? ki+1 : 0;
   if (ki === konami.length) {
     ki = 0;
-    document.body.classList.add('glitch');
-    setTimeout(() => document.body.classList.remove('glitch'), 300);
     showToast('still compiling.');
   }
 });
-
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
