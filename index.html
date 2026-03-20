@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>dryrun.cc — Co-Evolution.</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,9 +11,8 @@
     
     <style>
         :root {
-            --bg-color: #030610; /* 深藏青色背景 */
-            --wireframe-color: rgba(71, 85, 105, 0.4); /* 极淡的冷灰蓝线条 */
-            --stream-color: #00D4FF; /* 大胆轻快的青绿色流光 */
+            --bg-color: #030610; /* 深藏青色背景，更有呼吸感 */
+            --point-color: rgba(0, 212, 255, 0.4); /* 理性精密的青绿色点云 */
             --text-primary: #FFFFFF;
             --text-secondary: #94A3B8;
             --text-tertiary: rgba(148, 163, 184, 0.3);
@@ -23,6 +23,7 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-font-smoothing: antialiased;
+            touch-action: manipulation;
         }
 
         body {
@@ -30,36 +31,24 @@
             color: var(--text-primary);
             font-family: 'Geist Mono', monospace;
             height: 100vh;
+            height: 100dvh; /* 移动端动态视口高度适配 */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 60px;
+            padding: clamp(30px, 8vw, 60px);
             overflow: hidden; /* 保持整洁 */
         }
 
-        /* 移动端间距调整 */
-        @media (max-width: 768px) {
-            body { padding: 30px; }
-        }
-
-        /* --- 核心视觉：保留原有 3D 参数化流光网格 (秩序与涌现) --- */
-        .order-emerge-visual {
+        /* --- 核心视觉：The Entropy Clock (熵之钟) --- */
+        .entropy-visual {
             position: fixed;
-            top: 50%;
+            top: 55%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 400px;
-            height: 400px;
-            perspective: 1000px;
+            width: min(80vw, 450px);
+            height: min(80vw, 450px);
+            perspective: 1200px;
             z-index: 1;
-        }
-
-        /* 移动端缩小视觉尺寸 */
-        @media (max-width: 768px) {
-            .order-emerge-visual {
-                width: 300px;
-                height: 300px;
-            }
         }
 
         .mesh {
@@ -67,47 +56,41 @@
             width: 100%;
             height: 100%;
             transform-style: preserve-3d;
-            animation: mesh-rotate 30s linear infinite; /* 极其缓慢的旋转 */
+            animation: mesh-rotate 40s linear infinite; /* 极其缓慢的旋转 */
             opacity: 0.8; /* 默认半透明 */
         }
 
-        /* 生成球体的经纬线 (代表秩序) */
+        /* 生成参数化点云环 (舒缓呼吸与演进) */
         .ring {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 1px solid var(--wireframe-color);
+            inset: 0;
             border-radius: 50%;
             backface-visibility: hidden;
-            animation: line-breathe 10s ease-in-out infinite; /* 舒缓呼吸感 */
+            animation: line-breathe 12s ease-in-out infinite; /* 舒缓呼吸感 */
         }
 
-        /* CSS 变量控制旋转角度和动画延迟，模拟立体感 */
-        .ring:nth-child(1)  { transform: rotateY(0deg); animation-delay: 0s; }
-        .ring:nth-child(2)  { transform: rotateY(22.5deg); animation-delay: 0.5s; }
-        .ring:nth-child(3)  { transform: rotateY(45deg); animation-delay: 1.0s; }
-        .ring:nth-child(4)  { transform: rotateY(67.5deg); animation-delay: 1.5s; }
-        .ring:nth-child(5)  { transform: rotateY(90deg); animation-delay: 2.0s; }
-        .ring:nth-child(6)  { transform: rotateY(112.5deg); animation-delay: 2.5s; }
-        .ring:nth-child(7)  { transform: rotateY(135deg); animation-delay: 3.0s; }
-        .ring:nth-child(8)  { transform: rotateY(157.5deg); animation-delay: 3.5s; }
-        .ring:nth-child(9)  { transform: rotateX(90deg); border-width: 2px; } /* 横向赤道线 */
-
-        /* 涌现的流光特效 (代表智能) */
-        .mesh::before {
+        /* 移动端保留核心 4 环点云，通过伪元素模拟双旋转轴 */
+        .ring::before, .ring::after {
             content: '';
             position: absolute;
-            width: 40px;
-            height: 40px;
+            inset: 0;
+            border: 1px solid var(--point-color);
             border-radius: 50%;
-            background: radial-gradient(circle, var(--stream-color) 0%, transparent 70%);
-            animation: stream-bloom 10s linear infinite;
-            filter: blur(2px);
-            opacity: 0.9;
-            backface-visibility: hidden;
+            transform-style: preserve-3d;
         }
+
+        /* CSS 变量控制旋转角度和动画延迟，模拟纠缠感 */
+        .ring:nth-child(1)::before { transform: rotateY(0deg) scale(1); animation: ring-rotate-1 20s linear infinite; }
+        .ring:nth-child(1)::after  { transform: rotateX(0deg) scale(1); animation: ring-rotate-2 25s linear infinite; }
+
+        .ring:nth-child(2)::before { transform: rotateY(22.5deg) scale(0.95); animation: ring-rotate-1 18s linear infinite reverse; }
+        .ring:nth-child(2)::after  { transform: rotateX(22.5deg) scale(0.95); animation: ring-rotate-2 22s linear infinite reverse; }
+
+        .ring:nth-child(3)::before { transform: rotateY(45deg) scale(0.9); animation: ring-rotate-1 16s linear infinite; }
+        .ring:nth-child(3)::after  { transform: rotateX(45deg) scale(0.9); animation: ring-rotate-2 19s linear infinite; }
+
+        .ring:nth-child(4)::before { transform: rotateY(67.5deg) scale(0.85); animation: ring-rotate-1 14s linear infinite reverse; }
+        .ring:nth-child(4)::after  { transform: rotateX(67.5deg) scale(0.85); animation: ring-rotate-2 17s linear infinite reverse; }
 
         /* --- 文案与排版 (克制、代码化) --- */
         .container {
@@ -123,7 +106,7 @@
         }
 
         main {
-            margin-top: 15vh;
+            margin-top: clamp(10vh, 15vh, 20vh);
         }
 
         .hero-title {
@@ -151,7 +134,7 @@
             max-width: 450px;
             line-height: 1.7;
             text-transform: lowercase;
-            border-left: 1px solid var(--wireframe-color);
+            border-left: 1px solid rgba(71, 85, 105, 0.2);
             padding-left: 20px;
         }
 
@@ -180,7 +163,7 @@
             text-transform: uppercase;
         }
 
-        /* --- Animations (保留全套原有逻辑) --- */
+        /* --- Animations (全套完美保留并微调) --- */
         
         @keyframes mesh-rotate {
             0% { transform: rotateX(0deg) rotateY(0deg); }
@@ -188,14 +171,19 @@
         }
 
         @keyframes line-breathe {
-            0%, 100% { border-color: rgba(71, 85, 105, 0.4); opacity: 0.8; }
-            50% { border-color: rgba(71, 85, 105, 0.7); opacity: 1; }
+            0%, 100% { border-color: rgba(71, 85, 105, 0.3); opacity: 0.6; }
+            50% { border-color: rgba(71, 85, 105, 0.6); opacity: 1; }
         }
 
-        @keyframes stream-bloom {
-            0% { transform: scale(1) translate3d(0px, 150px, 0); opacity: 0.6; }
-            50% { transform: scale(1.1) translate3d(0px, -150px, 0); opacity: 1; filter: blur(3px); }
-            100% { transform: scale(1) translate3d(0px, 150px, 0); opacity: 0.6; }
+        /* 双旋转轴路径控制 */
+        @keyframes ring-rotate-1 {
+            0% { transform: rotateY(0deg) rotateZ(0deg); }
+            100% { transform: rotateY(360deg) rotateZ(360deg); }
+        }
+
+        @keyframes ring-rotate-2 {
+            0% { transform: rotateX(0deg) rotateZ(0deg); }
+            100% { transform: rotateX(360deg) rotateZ(360deg); }
         }
 
         @keyframes cursor-blink {
@@ -207,24 +195,10 @@
 </head>
 <body>
 
-    <div class="order-emerge-visual">
+    <div class="entropy-visual">
         <div class="mesh">
             <div class="ring"></div>
-            <div class="ring:nth-child(1)"></div>
             <div class="ring"></div>
-            <div class="ring:nth-child(2)"></div>
-            <div class="ring"></div>
-            <div class="ring:nth-child(3)"></div>
-            <div class="ring"></div>
-            <div class="ring:nth-child(4)"></div>
-            <div class="ring"></div>
-            <div class="ring:nth-child(5)"></div>
-            <div class="ring"></div>
-            <div class="ring:nth-child(6)"></div>
-            <div class="ring"></div>
-            <div class="ring:nth-child(7)"></div>
-            <div class="ring"></div>
-            <div class="ring:nth-child(8)"></div>
             <div class="ring"></div>
             <div class="ring"></div>
         </div>
@@ -245,10 +219,10 @@
                     理性智能，思想铸就。
                 </span>
             </p>
-            <p class="meta-text">
+            <div class="meta-text">
                 // > "Computers are useless. They can only give you answers." — Picasso<br>
                 // > 电脑没啥用，它们只会给答案。（提问才是人的特权）
-            </p>
+            </div>
         </main>
     </div>
 
