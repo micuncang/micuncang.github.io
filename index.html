@@ -11,13 +11,18 @@
         :root { --bg: #010309; --cyan: #00f2fe; --dim: rgba(148, 163, 184, 0.3); }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
         
+        /* 核心修复 1：在 Chrome 下使用 Fixed 物理百分比代替不稳固的 VH */
         body, html { 
             background: var(--bg); color: #fff; 
             font-family: "SF Mono", "Monaco", "Consolas", monospace; 
             width: 100%; height: 100%; overflow: hidden; position: fixed; 
+            top: 0; left: 0; right: 0; bottom: 0;
         }
 
-        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; background: var(--bg); }
+        #canvas-container { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            z-index: 1; background: var(--bg);
+        }
 
         .ui-overlay { 
             position: absolute; top: 0; left: 0; z-index: 10; 
@@ -85,13 +90,17 @@
             scene.background = new THREE.Color(0x010309);
             scene.fog = new THREE.Fog(0x010309, 12, 45); 
             
-            const ratio = window.innerWidth / window.innerHeight;
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            const ratio = w / h;
+            
             camera = new THREE.PerspectiveCamera(35, ratio, 2.0, 1000); 
-            camera.position.z = isMobile ? 15 : 12;
+            // 核心修复 2：移动端相机的物理位置补偿
+            camera.position.z = (w < 768) ? (ratio < 1 ? 16 : 14) : 12;
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false }); 
             renderer.setPixelRatio(1.0); 
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setSize(w, h);
             document.getElementById('canvas-container').appendChild(renderer.domElement);
 
             group = new THREE.Group();
@@ -148,11 +157,19 @@
             renderer.render(scene, camera);
         }
 
+        // 核心修复 3：在 Chrome 横竖屏切换时拦截非正数尺寸，并锁定相机中心
         window.addEventListener('resize', () => {
-            const w = window.innerWidth, h = window.innerHeight;
-            if (w <= 0 || h <= 0) return;
-            camera.aspect = w / h;
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            if (w <= 0 || h <= 0) return; 
+            
+            const ratio = w / h;
+            camera.aspect = ratio;
+            // Chrome 物理位置重对齐
+            camera.position.z = (w < 768) ? (ratio < 1 ? 16 : 14) : 12;
             camera.updateProjectionMatrix();
+            camera.lookAt(0,0,0);
+            
             renderer.setSize(w, h);
         }, { passive: true });
 
