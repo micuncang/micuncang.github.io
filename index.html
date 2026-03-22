@@ -11,22 +11,25 @@
         :root { --bg: #010309; --cyan: #00f2fe; --dim: rgba(148, 163, 184, 0.3); }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
         
-        /* 核心修复 1：在 Chrome 下使用 Fixed 物理百分比代替不稳固的 VH */
+        /* 核心修复：强制占满物理视口，防止 Chrome 旋转后的空白边缘 */
         body, html { 
             background: var(--bg); color: #fff; 
             font-family: "SF Mono", "Monaco", "Consolas", monospace; 
-            width: 100%; height: 100%; overflow: hidden; position: fixed; 
-            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100vw; height: 100vh; height: -webkit-fill-available;
+            overflow: hidden; position: fixed; top: 0; left: 0;
         }
 
         #canvas-container { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            z-index: 1; background: var(--bg);
+            z-index: 1; background: var(--bg); touch-action: none;
         }
+        
+        /* 强制画布比例锁定 */
+        #canvas-container canvas { display: block; width: 100% !important; height: 100% !important; }
 
         .ui-overlay { 
             position: absolute; top: 0; left: 0; z-index: 10; 
-            width: 100%; height: 100%; 
+            width: 100%; height: 100%; height: 100dvh; /* 使用动态视口高度 */
             padding: clamp(30px, 6vw, 80px); 
             display: flex; flex-direction: column;
             pointer-events: none; 
@@ -85,27 +88,37 @@
         let targetX = 0, targetY = 0, curX = 0, curY = 0;
         const isMobile = window.innerWidth < 768;
 
+        function handleResize() {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            if (w <= 0 || h <= 0) return; 
+            
+            const ratio = w / h;
+            camera.aspect = ratio;
+            camera.position.z = (w < 768) ? (ratio < 1 ? 16 : 14) : 12;
+            camera.updateProjectionMatrix();
+            camera.lookAt(0,0,0);
+            
+            renderer.setSize(w, h);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // 允许最高2倍采样，提升清晰度
+        }
+
         function init() {
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x010309);
             scene.fog = new THREE.Fog(0x010309, 12, 45); 
             
-            const w = window.innerWidth;
-            const h = window.innerHeight;
-            const ratio = w / h;
-            
-            camera = new THREE.PerspectiveCamera(35, ratio, 2.0, 1000); 
-            // 核心修复 2：移动端相机的物理位置补偿
-            camera.position.z = (w < 768) ? (ratio < 1 ? 16 : 14) : 12;
+            camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 2.0, 1000); 
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false }); 
-            renderer.setPixelRatio(1.0); 
-            renderer.setSize(w, h);
             document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            handleResize(); // 初始对齐
 
             group = new THREE.Group();
             scene.add(group);
 
+            // 粒子与连线保持 V15 的精密配置
             const pCount = isMobile ? 4000 : 10000;
             const pGeom = new THREE.BufferGeometry();
             const posArr = new Float32Array(pCount * 3);
@@ -117,10 +130,7 @@
                 posArr[i*3+2] = r * Math.cos(p);
             }
             pGeom.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
-            const pMat = new THREE.PointsMaterial({ 
-                color: 0x00a6fb, size: 0.008, transparent: true, opacity: 0.5, depthWrite: false 
-            });
-            group.add(new THREE.Points(pGeom, pMat));
+            group.add(new THREE.Points(pGeom, new THREE.PointsMaterial({ color: 0x00a6fb, size: 0.008, transparent: true, opacity: 0.5, depthWrite: false })));
 
             const lCount = isMobile ? 800 : 2200;
             const lGeom = new THREE.BufferGeometry();
@@ -128,16 +138,10 @@
             for (let i = 0; i < lCount; i++) {
                 const idx1 = Math.floor((i * 13) % pCount);
                 const idx2 = (idx1 + 45) % pCount;
-                for(let j=0; j<3; j++) {
-                    lPosArr[i*6+j] = posArr[idx1*3+j];
-                    lPosArr[i*6+3+j] = posArr[idx2*3+j];
-                }
+                for(let j=0; j<3; j++) { lPosArr[i*6+j] = posArr[idx1*3+j]; lPosArr[i*6+3+j] = posArr[idx2*3+j]; }
             }
             lGeom.setAttribute('position', new THREE.BufferAttribute(lPosArr, 3));
-            const lMat = new THREE.LineBasicMaterial({ 
-                color: 0x00a6fb, transparent: true, opacity: 0.15, depthWrite: false 
-            });
-            group.add(new THREE.LineSegments(lGeom, lMat));
+            group.add(new THREE.LineSegments(lGeom, new THREE.LineBasicMaterial({ color: 0x00a6fb, transparent: true, opacity: 0.15, depthWrite: false })));
 
             window.addEventListener('mousemove', e => {
                 targetX = (e.clientX / window.innerWidth - 0.5) * 0.45;
@@ -157,21 +161,18 @@
             renderer.render(scene, camera);
         }
 
-        // 核心修复 3：在 Chrome 横竖屏切换时拦截非正数尺寸，并锁定相机中心
+        // 核心修复：针对 Chrome 旋转的防抖重试机制
         window.addEventListener('resize', () => {
-            const w = window.innerWidth;
-            const h = window.innerHeight;
-            if (w <= 0 || h <= 0) return; 
-            
-            const ratio = w / h;
-            camera.aspect = ratio;
-            // Chrome 物理位置重对齐
-            camera.position.z = (w < 768) ? (ratio < 1 ? 16 : 14) : 12;
-            camera.updateProjectionMatrix();
-            camera.lookAt(0,0,0);
-            
-            renderer.setSize(w, h);
+            handleResize();
+            // 解决移动端 Chrome 地址栏/键盘弹出导致的尺寸延迟计算
+            setTimeout(handleResize, 100);
+            setTimeout(handleResize, 300);
         }, { passive: true });
+
+        // 旋转专用监听
+        window.addEventListener("orientationchange", () => {
+            setTimeout(handleResize, 200);
+        });
 
         setInterval(() => {
             const el = document.getElementById('bj-time');
