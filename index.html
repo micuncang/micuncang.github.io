@@ -28,81 +28,58 @@
             pointer-events: none; 
         }
 
-        /* --- 顶部 --- */
         header { 
             font-size: 10px; letter-spacing: 2px; color: var(--dim); text-transform: uppercase;
-            display: flex; align-items: center; margin-bottom: 40px;
+            display: flex; align-items: center; margin-bottom: 30px;
         }
-        .header-line { width: 30px; height: 1px; background: var(--cyan); opacity: 0.4; margin-right: 12px; }
+        .header-line { width: 30px; height: 1px; background: var(--cyan); opacity: 0.5; margin-right: 12px; }
 
-        /* --- 中部：移动端改为垂直排列，防止重叠 --- */
-        main { 
-            flex: 1; display: flex; flex-direction: row; 
-            justify-content: space-between; align-items: flex-start;
-        }
-
-        .left-zone { flex: 1; padding-top: 2vh; }
+        main { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; }
         .hero-title { 
-            font-size: clamp(34px, 7vw, 90px); font-weight: 200; 
-            letter-spacing: -3px; line-height: 0.9; margin-bottom: 20px;
-            white-space: nowrap; 
+            font-size: clamp(36px, 8vw, 90px); font-weight: 200; 
+            letter-spacing: -2px; line-height: 1; margin-bottom: 10px;
         }
-        .hero-slogan { font-size: 14px; color: #94a3b8; font-weight: 300; line-height: 1.6; max-width: 380px; }
+        .hero-slogan { font-size: 14px; color: #94a3b8; font-weight: 300; max-width: 320px; }
 
-        .right-zone { 
-            text-align: right; pointer-events: auto; 
-            padding-top: 20vh; /* 错位布局，增加恢弘感 */
-        }
+        .right-zone { padding-top: 10vh; }
         .quote { 
             font-size: 11px; color: #64748b; line-height: 1.8; 
-            max-width: 220px; margin-bottom: 30px; 
-            border-right: 2px solid var(--cyan); padding-right: 15px; 
-            display: inline-block;
+            max-width: 100%; margin-bottom: 20px; 
+            border-left: 2px solid var(--cyan); padding-left: 15px; 
         }
-        .dynamic-meta { font-size: 10px; color: var(--cyan); opacity: 0.6; }
+        .dynamic-meta { font-size: 10px; color: var(--cyan); opacity: 0.7; font-weight: 400; }
 
-        /* --- 底部 --- */
         footer { 
-            display: flex; justify-content: space-between; align-items: flex-end;
+            display: flex; flex-direction: column; gap: 10px;
             font-size: 10px; color: #475569; 
-            padding-top: 20px;
             padding-bottom: env(safe-area-inset-bottom, 20px);
         }
-        .tech-support { opacity: 0.3; letter-spacing: 1px; }
+        .tech-support { opacity: 0.4; letter-spacing: 1px; }
 
-        /* 移动端深度优化：解决显示不全 */
-        @media (max-width: 768px) {
-            .ui-overlay { padding: 30px 24px; }
-            main { flex-direction: column; justify-content: flex-start; }
-            .hero-title { letter-spacing: -1px; margin-bottom: 15px; }
-            .left-zone { flex: none; }
-            .right-zone { 
-                text-align: left; padding-top: 8vh; width: 100%; 
-            }
-            .quote { 
-                border-right: none; border-left: 2px solid var(--cyan); 
-                padding-right: 0; padding-left: 15px; max-width: 100%;
-            }
-            footer { flex-direction: column; align-items: flex-start; gap: 10px; }
+        @media (min-width: 769px) {
+            main { flex-direction: row; justify-content: space-between; align-items: flex-start; }
+            .right-zone { text-align: right; padding-top: 25vh; }
+            .quote { border-left: none; border-right: 2px solid var(--cyan); padding-left: 0; padding-right: 15px; }
+            footer { flex-direction: row; justify-content: space-between; }
         }
     </style>
 </head>
 <body>
     <div id="canvas-container"></div>
     <div class="ui-overlay">
-        <header><div class="header-line"></div>THOUGHT IS THE FIRST STEP; DATA IS THE LONG ECHO.</header>
+        <header><div class="header-line"></div>SYNCHRONIZING THOUGHTS</header>
         <main>
             <div class="left-zone">
                 <h1 class="hero-title">Co-Evolution.</h1>
                 <p class="hero-slogan">Rational intelligence, shaped by thoughts.</p>
             </div>
             <div class="right-zone">
-                <p class="quote">// > "Computers are useless. They can only give you answers."</p>
-                <div class="dynamic-meta" id="bj-time">BEIJING: SYNCING...</div>
+                <p class="quote">// > "Computers are useless.<br>They can only give you answers."</p>
+                <div class="dynamic-meta" id="bj-time">LATENT_STATE: ACTIVE</div>
             </div>
         </main>
         <footer>
-            <div>> STATUS: SYNCHRONIZING LATENT SPACE...</div>
+            <div>> STATUS: OPTIMIZING VECTOR_TOPOLOGY...</div>
             <div class="tech-support">POWERED BY GEMINI AI</div>
         </footer>
     </div>
@@ -111,7 +88,7 @@
         function updateTime() {
             const el = document.getElementById('bj-time');
             const bj = new Date(new Date().getTime() + (new Date().getTimezoneOffset() * 60000) + (8 * 3600000));
-            if(el) el.innerText = `BEIJING: ${bj.toISOString().replace('T', ' ').substring(0, 19)}`;
+            if(el) el.innerText = `SYNC_TIME: ${bj.toISOString().replace('T', '_').substring(0, 19)}`;
         }
         setInterval(updateTime, 1000);
 
@@ -119,42 +96,52 @@
         const isMobile = window.innerWidth < 768;
 
         function init() {
-            if (typeof THREE === 'undefined') {
-                console.error("Three.js load failed.");
-                return;
-            }
             scene = new THREE.Scene();
             scene.fog = new THREE.Fog(0x010309, 2, 12);
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = isMobile ? 9 : 5.5;
+            camera.position.z = isMobile ? 8.5 : 5.5;
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            
+            // 核心：强制使用物理像素比，解决模糊问题
+            const pixelRatio = window.devicePixelRatio || 1;
+            renderer.setPixelRatio(Math.min(pixelRatio, 3)); // 最高支持 3 倍采样，确保矢量感
+            
             document.getElementById('canvas-container').appendChild(renderer.domElement);
 
             group = new THREE.Group();
             scene.add(group);
 
-            // 粒子系统 (温和版)
-            const pCount = isMobile ? 2000 : 4000;
+            // 1. 点云：尺寸更小，显得更精致
+            const pCount = isMobile ? 2500 : 5000;
             const pGeom = new THREE.BufferGeometry();
             const posArr = new Float32Array(pCount * 3);
             for (let i = 0; i < pCount; i++) {
-                const r = 3 * Math.pow(Math.random(), 0.5); 
+                const r = 3.2 * Math.pow(Math.random(), 0.5); 
                 const t = Math.random() * Math.PI * 2, p = Math.acos((Math.random() * 2) - 1);
                 posArr[i*3] = r * Math.sin(p) * Math.cos(t);
                 posArr[i*3+1] = r * Math.sin(p) * Math.sin(t);
                 posArr[i*3+2] = r * Math.cos(p);
             }
             pGeom.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
-            particles = new THREE.Points(pGeom, new THREE.PointsMaterial({ color: 0x00f2fe, size: 0.015, transparent: true, opacity: 0.5 }));
+            particles = new THREE.Points(pGeom, new THREE.PointsMaterial({ 
+                color: 0x00f2fe, 
+                size: isMobile ? 0.008 : 0.012, // 减小点尺寸，增加锐利度
+                transparent: true, 
+                opacity: 0.6 
+            }));
             group.add(particles);
 
-            // 连线
-            const lCount = isMobile ? 300 : 600;
+            // 2. 线条：增加透明度对比，强化矢量路径感
+            const lCount = isMobile ? 400 : 800;
             const lGeom = new THREE.BufferGeometry();
-            lines = new THREE.LineSegments(lGeom, new THREE.LineBasicMaterial({ color: 0x00f2fe, transparent: true, opacity: 0.2 }));
+            lines = new THREE.LineSegments(lGeom, new THREE.LineBasicMaterial({ 
+                color: 0x00f2fe, 
+                transparent: true, 
+                opacity: 0.35, // 提高亮度，增强矢量感
+                blending: THREE.AdditiveBlending 
+            }));
             lGeom.setAttribute('position', new THREE.BufferAttribute(new Float32Array(lCount * 6), 3));
             group.add(lines);
 
@@ -163,19 +150,25 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            const time = Date.now() * 0.00015;
-            group.rotation.y += 0.0008;
+            // 保持温和的恢弘节奏
+            const time = Date.now() * 0.00012; 
+            group.rotation.y += 0.0006;
             
             const pP = particles.geometry.attributes.position.array;
             const lP = lines.geometry.attributes.position.array;
             const pL = pP.length / 3;
             
             for (let i = 0; i < lP.length / 6; i++) {
-                const idx1 = Math.floor((i * 7 + Math.sin(time + i * 0.1) * 200) % pL);
-                const idx2 = (idx1 + 100) % pL;
+                // 使用平滑偏移逻辑，但保持连接点的稳定性
+                const idx1 = Math.floor((i * 13 + Math.sin(time + i * 0.05) * 150) % pL);
+                const idx2 = (idx1 + 180) % pL;
+                
+                const s1 = Math.max(0, idx1);
+                const s2 = Math.max(0, idx2);
+
                 for(let j=0; j<3; j++) {
-                    lP[i*6+j] = pP[idx1*3+j];
-                    lP[i*6+3+j] = pP[idx2*3+j];
+                    lP[i*6+j] = pP[s1*3+j];
+                    lP[i*6+3+j] = pP[s2*3+j];
                 }
             }
             lines.geometry.attributes.position.needsUpdate = true;
@@ -184,7 +177,9 @@
 
         window.addEventListener('mousemove', (e) => {
             if(group) {
-                gsap.to(group.rotation, { x: (e.clientY/window.innerHeight-0.5), y: (e.clientX/window.innerWidth-0.5), duration: 3 });
+                const x = (e.clientX / window.innerWidth - 0.5) * 0.8;
+                const y = (e.clientY / window.innerHeight - 0.5) * 0.8;
+                gsap.to(group.rotation, { x: y, y: x, duration: 4, ease: "power1.out" });
             }
         });
 
