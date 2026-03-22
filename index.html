@@ -6,76 +6,84 @@
     <title>dryrun.cc — Co-Evolution</title>
     
     <link href="https://fonts.loli.net/css2?family=Geist+Mono:wght@100..400&display=swap" rel="stylesheet">
-    
-    <script src="https://cdn.bootcdn.net/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.bootcdn.net/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="https://lib.baomitu.com/three.js/r128/three.min.js"></script>
+    <script src="https://lib.baomitu.com/gsap/3.9.1/gsap.min.js"></script>
     
     <style>
-        :root { --bg: #010309; --cyan: #00f2fe; }
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #010309; --cyan: #00f2fe; --dim: rgba(148, 163, 184, 0.3); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body, html { 
-            background: var(--bg); 
-            color: #fff; 
-            font-family: 'Geist Mono', monospace; 
-            overflow: hidden; 
-            width: 100%;
-            height: 100%;
-            position: fixed; 
+            background: var(--bg); color: #fff; font-family: 'Geist Mono', monospace; 
+            overflow: hidden; width: 100vw; height: 100vh; position: fixed; 
         }
 
-        #canvas-container { 
-            position: fixed; 
-            top: 0; left: 0; right: 0; bottom: 0; 
-            z-index: 1; 
-            background: transparent;
-        }
+        #canvas-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
 
         .ui-overlay { 
-            position: absolute; 
-            top: 0; left: 0;
-            z-index: 10; 
+            position: absolute; top: 0; left: 0; z-index: 10; 
             width: 100%; height: 100%; 
-            display: flex; flex-direction: column; 
-            justify-content: space-between; 
-            padding: clamp(30px, 7vw, 60px); 
+            padding: clamp(30px, 6vw, 80px); 
+            display: flex; flex-direction: column; justify-content: space-between;
             pointer-events: none; 
         }
 
         header { 
-            font-size: 11px; 
-            letter-spacing: 2px; 
-            color: rgba(148, 163, 184, 0.4); 
-            text-transform: uppercase;
+            display: flex; align-items: center;
+            font-size: 10px; letter-spacing: 2px; color: var(--dim); text-transform: uppercase;
         }
+        .header-line { width: 40px; height: 1px; background: var(--cyan); opacity: 0.4; margin-right: 15px; }
 
-        .hero-title { font-size: clamp(32px, 8vw, 72px); font-weight: 200; letter-spacing: -1px; margin-top: 20px; }
-        .hero-slogan { font-size: 14px; color: #94a3b8; font-weight: 300; margin-top: 8px; line-height: 1.4; }
-        
-        .meta-text-block { 
-            margin-top: 30px; 
-            padding-left: 15px; 
-            border-left: 1px solid rgba(0, 242, 254, 0.3); 
-            max-width: 85%; 
-            pointer-events: auto; 
+        main { display: flex; justify-content: space-between; align-items: center; flex: 1; }
+        .left-zone { flex: 1; }
+        .hero-title { 
+            font-size: clamp(32px, 7.5vw, 95px); font-weight: 200; 
+            letter-spacing: -4px; line-height: 1; margin-bottom: 15px;
+            white-space: nowrap; 
         }
-        .quote { font-size: 12px; color: #64748b; line-height: 1.5; }
-        .dynamic-meta { font-size: 9px; color: rgba(0, 242, 254, 0.3); margin-top: 10px; }
+        .hero-slogan { font-size: 14px; color: #94a3b8; font-weight: 300; line-height: 1.5; max-width: 400px; }
 
-        footer { font-size: 10px; color: #64748b; padding-bottom: 20px; }
+        .right-zone { text-align: right; pointer-events: auto; margin-left: 40px; }
+        .quote { 
+            font-size: 12px; color: #64748b; line-height: 1.8; 
+            max-width: 240px; margin-bottom: 35px; 
+            border-right: 2px solid var(--cyan); padding-right: 15px; 
+            display: inline-block;
+        }
+        .dynamic-meta { font-size: 10px; color: var(--cyan); opacity: 0.6; letter-spacing: 1px; }
+
+        footer { 
+            display: flex; justify-content: space-between; align-items: flex-end;
+            font-size: 10px; color: #64748b; 
+            padding-bottom: env(safe-area-inset-bottom, 0);
+        }
+        .tech-support { color: rgba(148, 163, 184, 0.2); letter-spacing: 1px; text-transform: uppercase; }
         .typing::after { content: '_'; animation: blink 1.2s infinite; }
         @keyframes blink { 50% { opacity: 0; } }
+
+        @media (max-width: 768px) {
+            .ui-overlay { padding: 30px; }
+            main { flex-direction: column; justify-content: center; align-items: flex-start; }
+            .right-zone { text-align: left; margin-top: 60px; margin-left: 0; }
+            .quote { border-right: none; border-left: 2px solid var(--cyan); padding-left: 15px; }
+        }
     </style>
 </head>
 <body>
     <div id="canvas-container"></div>
+
     <div class="ui-overlay">
-        <header>Thought is the first step; data is the long echo.</header>
+        <header>
+            <div class="header-line"></div>
+            <span>Thought is the first step; data is the long echo.</span>
+        </header>
         
         <main>
-            <h1 class="hero-title">Co-Evolution.</h1>
-            <p class="hero-slogan">Rational intelligence, shaped by thoughts.</p>
-            <div class="meta-text-block">
+            <div class="left-zone">
+                <h1 class="hero-title">Co-Evolution.</h1>
+                <p class="hero-slogan">Rational intelligence, shaped by thoughts.</p>
+            </div>
+            <div class="right-zone">
                 <p class="quote">// > "Computers are useless. They can only give you answers."</p>
                 <div class="dynamic-meta" id="bj-time">>> BEIJING: SYNCING...</div>
             </div>
@@ -83,6 +91,7 @@
         
         <footer>
             <div>> Status: Synchronizing...<span class="typing"></span></div>
+            <div class="tech-support">Powered by Gemini AI</div>
         </footer>
     </div>
 
@@ -91,116 +100,124 @@
             const el = document.getElementById('bj-time');
             const now = new Date();
             const bj = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (8 * 3600000));
-            el.innerText = `>> BEIJING: ${bj.toISOString().replace('T', '_').substring(0, 19)}`;
+            if(el) el.innerText = `>> BEIJING: ${bj.toISOString().replace('T', '_').substring(0, 19)}`;
         }
         setInterval(updateTime, 1000);
 
-        let scene, camera, renderer, particles, lines, group;
+        let scene, camera, renderer, particles, lines, group, sparks;
         let isMobile = window.innerWidth < 768;
 
         function init() {
-            if (typeof THREE === 'undefined') return; // 防止资源加载失败报错
-
+            if (typeof THREE === 'undefined') return;
             scene = new THREE.Scene();
-            scene.fog = new THREE.Fog(0x010309, 1, 12);
+            scene.fog = new THREE.Fog(0x010309, 2, 12);
+            
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = isMobile ? 6 : 5;
+            camera.position.z = isMobile ? 8 : 5.5;
 
-            renderer = new THREE.WebGLRenderer({ antialias: !isMobile, alpha: true, precision: 'mediump' });
-            handleResize();
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
             document.getElementById('canvas-container').appendChild(renderer.domElement);
 
             group = new THREE.Group();
             scene.add(group);
 
-            const particleCount = isMobile ? 1200 : 2500;
-            const pGeometry = new THREE.BufferGeometry();
-            const positions = new Float32Array(particleCount * 3);
-            for (let i = 0; i < particleCount; i++) {
-                const r = 3 * Math.sqrt(Math.random());
-                const theta = Math.random() * Math.PI * 2;
-                const phi = Math.acos((Math.random() * 2) - 1);
-                positions[i*3] = r * Math.sin(phi) * Math.cos(theta);
-                positions[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
-                positions[i*3+2] = r * Math.cos(phi);
+            // 1. 基础点云 (Sharp Cyan)
+            const pCount = isMobile ? 2500 : 5000;
+            const pGeom = new THREE.BufferGeometry();
+            const posArray = new Float32Array(pCount * 3);
+            for (let i = 0; i < pCount; i++) {
+                const r = 3.0 * Math.pow(Math.random(), 0.5); 
+                const t = Math.random() * Math.PI * 2;
+                const p = Math.acos((Math.random() * 2) - 1);
+                posArray[i*3] = r * Math.sin(p) * Math.cos(t);
+                posArray[i*3+1] = r * Math.sin(p) * Math.sin(t);
+                posArray[i*3+2] = r * Math.cos(p);
             }
-            pGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            particles = new THREE.Points(pGeometry, new THREE.PointsMaterial({
-                color: 0x00f2fe, size: 0.015, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending
+            pGeom.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            particles = new THREE.Points(pGeom, new THREE.PointsMaterial({
+                color: 0x00f2fe, size: 0.012, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending
             }));
             group.add(particles);
 
-            const lineCount = isMobile ? 200 : 450; 
-            const lGeometry = new THREE.BufferGeometry();
-            const lPositions = new Float32Array(lineCount * 6);
-            lGeometry.setAttribute('position', new THREE.BufferAttribute(lPositions, 3));
-            lines = new THREE.LineSegments(lGeometry, new THREE.LineBasicMaterial({
-                color: 0x00f2fe, transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending
+            // 2. 智慧粒子 (Sharp White Sparks)
+            const sCount = 80;
+            const sGeom = new THREE.BufferGeometry();
+            const sPosArray = new Float32Array(sCount * 3);
+            for (let i = 0; i < sCount; i++) {
+                const r = 2.2 * Math.pow(Math.random(), 0.6); 
+                const t = Math.random() * Math.PI * 2;
+                const p = Math.acos((Math.random() * 2) - 1);
+                sPosArray[i*3] = r * Math.sin(p) * Math.cos(t);
+                sPosArray[i*3+1] = r * Math.sin(p) * Math.sin(t);
+                sPosArray[i*3+2] = r * Math.cos(p);
+            }
+            sGeom.setAttribute('position', new THREE.BufferAttribute(sPosArray, 3));
+            sparks = new THREE.Points(sGeom, new THREE.PointsMaterial({
+                color: 0xffffff, size: 0.02, transparent: true, opacity: 1.0, blending: THREE.AdditiveBlending
+            }));
+            group.add(sparks);
+
+            // 3. 连线系统
+            const lCount = isMobile ? 400 : 800; 
+            const lGeom = new THREE.BufferGeometry();
+            const lPosArray = new Float32Array(lCount * 6);
+            lGeom.setAttribute('position', new THREE.BufferAttribute(lPosArray, 3));
+            lines = new THREE.LineSegments(lGeom, new THREE.LineBasicMaterial({
+                color: 0x00f2fe, transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending
             }));
             group.add(lines);
 
             animate();
         }
 
-        function handleResize() {
-            const w = window.innerWidth;
-            const h = window.innerHeight;
-            if (camera) {
-                camera.aspect = w / h;
-                camera.updateProjectionMatrix();
-            }
-            if (renderer) {
-                renderer.setSize(w, h);
-                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            }
-        }
-
-        window.addEventListener('resize', () => {
-            handleResize();
-            setTimeout(handleResize, 200); 
-        });
-
         function animate() {
             requestAnimationFrame(animate);
-            const time = Date.now() * 0.0005;
-            group.rotation.y = time * 0.12;
-            group.rotation.z = Math.sin(time * 0.3) * 0.1;
+            // 恢复合理的动力学频率
+            const time = Date.now() * 0.0004; 
             
-            const pPos = particles.geometry.attributes.position.array;
-            const lPos = lines.geometry.attributes.position.array;
+            group.rotation.y += 0.0012; // 稳定的慢速自转
+            group.rotation.z = Math.sin(time * 0.2) * 0.05;
             
-            for (let i = 0; i < (lPos.length / 6); i++) {
-                const idx1 = (i * 7) % (pPos.length / 3);
-                const idx2 = (idx1 + Math.floor(Math.sin(time + i) * 80) + 150) % (pPos.length / 3);
-                lPos[i*6] = pPos[idx1*3];
-                lPos[i*6+1] = pPos[idx1*3+1];
-                lPos[i*6+2] = pPos[idx1*3+2];
-                lPos[i*6+3] = pPos[idx2*3];
-                lPos[i*6+4] = pPos[idx2*3+1];
-                lPos[i*6+5] = pPos[idx2*3+2];
+            const pP = particles.geometry.attributes.position.array;
+            const lP = lines.geometry.attributes.position.array;
+            const pL = pP.length / 3;
+            const lL = lP.length / 6;
+
+            for (let i = 0; i < lL; i++) {
+                const idx1 = (i * 11) % pL; 
+                const idx2 = (idx1 + 150) % pL;
+                lP[i*6] = pP[idx1*3]; 
+                lP[i*6+1] = pP[idx1*3+1]; 
+                lP[i*6+2] = pP[idx1*3+2];
+                lP[i*6+3] = pP[idx2*3]; 
+                lP[i*6+4] = pP[idx2*3+1]; 
+                lP[i*6+5] = pP[idx2*3+2];
             }
             lines.geometry.attributes.position.needsUpdate = true;
-            lines.material.opacity = 0.1 + Math.abs(Math.sin(time * 4)) * 0.2;
+            
+            // 智慧粒子跳变逻辑：每帧微小的亮度扰动
+            sparks.material.opacity = 0.6 + (Math.random() > 0.96 ? 0.4 : Math.sin(time * 6) * 0.2);
+            
             renderer.render(scene, camera);
         }
 
-        // 交互逻辑
-        window.addEventListener('mousemove', (e) => {
-            if (!group) return;
-            const x = (e.clientX / window.innerWidth - 0.5) * 2;
-            const y = (e.clientY / window.innerHeight - 0.5) * 2;
-            gsap.to(group.rotation, { x: y * 0.4, y: x * 0.4, duration: 2 });
+        const handleMove = (x, y) => {
+            if (!group || typeof gsap === 'undefined') return;
+            const nx = (x / window.innerWidth - 0.5) * 2;
+            const ny = (y / window.innerHeight - 0.5) * 2;
+            gsap.to(group.rotation, { x: ny * 0.7, y: nx * 1.1, duration: 2.5, ease: "power2.out" });
+        };
+
+        window.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
+        window.addEventListener('resize', () => {
+            if(!camera || !renderer) return;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        window.addEventListener('touchmove', (e) => {
-            if (!group) return;
-            const touch = e.touches[0];
-            const x = (touch.clientX / window.innerWidth - 0.5) * 2;
-            const y = (touch.clientY / window.innerHeight - 0.5) * 2;
-            gsap.to(group.rotation, { x: y * 0.3, y: x * 0.3, duration: 1.5 });
-        });
-
-        // 确保资源加载完成后再启动
         window.onload = init;
     </script>
 </body>
