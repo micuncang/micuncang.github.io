@@ -3,31 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>dryrun.cc — Co-Evolution</title>
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='15' y='15' width='70' height='70' fill='none' stroke='%23334155' stroke-width='6' opacity='0.4'/><rect x='38' y='38' width='24' height='24' fill='%23334155' opacity='0.8'/></svg>">
+    
+    <title>Co-Evolution</title>
+
     <script src="https://cdn.staticfile.org/three.js/r128/three.min.js"></script>
     <style>
         :root { --bg: #010309; --cyan: #00f2fe; --dim: rgba(148, 163, 184, 0.3); }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        
         body, html { 
             background: var(--bg); color: #fff; 
-            font-family: "SF Mono", "Monaco", "Consolas", monospace; 
+            /* 使用更硬核的等宽字体组合 */
+            font-family: "JetBrains Mono", "SF Mono", "Monaco", monospace; 
             width: 100vw; height: 100vh; height: -webkit-fill-available;
             overflow: hidden; position: fixed; top: 0; left: 0;
         }
+
         #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; background: var(--bg); touch-action: none; }
-        #canvas-container canvas { display: block; width: 100% !important; height: 100% !important; }
+        #canvas-container canvas { display: block; width: 100% !important; height: 100% !important; opacity: 0.65; /* 降低画布亮度，更沉稳 */ }
+
         .ui-overlay { 
             position: absolute; top: 0; left: 0; z-index: 10; width: 100%; height: 100%; height: 100dvh;
             padding: clamp(30px, 6vw, 80px); display: flex; flex-direction: column; pointer-events: none; 
         }
+
         header { font-size: 10px; letter-spacing: 2px; color: var(--dim); text-transform: uppercase; display: flex; align-items: center; margin-bottom: 2vh; }
         .header-line { width: 30px; height: 1px; background: var(--cyan); opacity: 0.5; margin-right: 12px; }
+
         main { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; }
-        .hero-title { font-size: clamp(38px, 8vw, 90px); font-weight: 200; letter-spacing: -2px; line-height: 1.1; margin-bottom: 12px; }
+        .hero-title { font-size: clamp(38px, 8vw, 90px); font-weight: 200; letter-spacing: -2px; line-height: 1.1; margin-bottom: 12px; color: #ececec; }
         .hero-slogan { font-size: 14px; color: #94a3b8; font-weight: 300; letter-spacing: 0.5px; }
+
         .info-zone { margin-top: auto; padding-bottom: 20px; }
-        .dynamic-meta { font-size: 10px; color: var(--cyan); opacity: 0.8; font-weight: 500; }
+        .dynamic-meta { font-size: 10px; color: var(--cyan); opacity: 0.8; font-weight: 500; font-family: monospace; }
+
         footer { display: flex; flex-direction: column; gap: 8px; font-size: 9px; color: #475569; letter-spacing: 1px; padding-bottom: env(safe-area-inset-bottom, 20px); }
+
         @media (min-width: 769px) {
             main { flex-direction: row; justify-content: space-between; align-items: flex-start; }
             .info-zone { text-align: right; margin-top: 30vh; }
@@ -58,6 +71,14 @@
         let targetX = 0, targetY = 0, curX = 0, curY = 0;
         const isMobile = window.innerWidth < 768;
 
+        // 3. 科技感标题心跳逻辑
+        const titleStates = ["Co-Evolution", "Co-Evolution .", "Co-Evolution ..", "Co-Evolution ..."];
+        let stateIdx = 0;
+        setInterval(() => {
+            stateIdx = (stateIdx + 1) % titleStates.length;
+            document.title = titleStates[stateIdx];
+        }, 3000);
+
         function handleResize() {
             const w = window.innerWidth, h = window.innerHeight;
             if (w <= 0 || h <= 0) return; 
@@ -78,8 +99,10 @@
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false }); 
             document.getElementById('canvas-container').appendChild(renderer.domElement);
             handleResize();
+            
             group = new THREE.Group();
             scene.add(group);
+            
             const pCount = isMobile ? 4000 : 10000;
             const pGeom = new THREE.BufferGeometry();
             const posArr = new Float32Array(pCount * 3);
@@ -91,7 +114,9 @@
                 posArr[i*3+2] = r * Math.cos(p);
             }
             pGeom.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
-            group.add(new THREE.Points(pGeom, new THREE.PointsMaterial({ color: 0x00a6fb, size: 0.008, transparent: true, opacity: 0.5, depthWrite: false })));
+            group.add(new THREE.Points(pGeom, new THREE.PointsMaterial({ color: 0x00a6fb, size: 0.008, transparent: true, opacity: 0.45, depthWrite: false })));
+            
+            // 粒子与连线保持精密配置
             const lCount = isMobile ? 800 : 2200;
             const lGeom = new THREE.BufferGeometry();
             const lPosArr = new Float32Array(lCount * 6);
@@ -101,7 +126,15 @@
                 for(let j=0; j<3; j++) { lPosArr[i*6+j] = posArr[idx1*3+j]; lPosArr[i*6+3+j] = posArr[idx2*3+j]; }
             }
             lGeom.setAttribute('position', new THREE.BufferAttribute(lPosArr, 3));
-            group.add(new THREE.LineSegments(lGeom, new THREE.LineBasicMaterial({ color: 0x00a6fb, transparent: true, opacity: 0.15, depthWrite: false })));
+            
+            // 4. 视觉优化：强化背景网格，稍微提升透明度，更显架构感
+            group.add(new THREE.LineSegments(lGeom, new THREE.LineBasicMaterial({ 
+                color: 0x00a6fb, 
+                transparent: true, 
+                opacity: 0.22, // 提升透明度，强化精密感
+                depthWrite: false 
+            })));
+
             window.addEventListener('mousemove', e => {
                 targetX = (e.clientX / window.innerWidth - 0.5) * 0.45;
                 targetY = (e.clientY / window.innerHeight - 0.5) * 0.35;
@@ -111,31 +144,25 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            const time = Date.now() * 0.000025;
+            const time = Date.now() * 0.00002;
             curX += (targetX - curX) * 0.04;
             curY += (targetY - curY) * 0.04;
-            group.rotation.y = time * 5 + curX;
-            group.rotation.x = time * 2 + curY;
+            group.rotation.y = time * 4.5 + curX;
+            group.rotation.x = time * 1.8 + curY;
             renderer.render(scene, camera);
         }
 
         window.addEventListener('resize', () => {
             handleResize();
             setTimeout(handleResize, 100);
-            setTimeout(handleResize, 300);
         }, { passive: true });
 
-        window.addEventListener("orientationchange", () => {
-            setTimeout(handleResize, 200);
-        });
-
-        // 核心修复：北京时间 (UTC+8) 精准计算
+        // BEIJING 时间保持原样
         setInterval(() => {
             const el = document.getElementById('bj-time');
             const now = new Date();
             const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
             const bjTime = new Date(utc + (3600000 * 8));
-            
             if(el) {
                 const f = (n) => String(n).padStart(2, '0');
                 el.innerText = `BEIJING: ${bjTime.getFullYear()}-${f(bjTime.getMonth()+1)}-${f(bjTime.getDate())}_${f(bjTime.getHours())}:${f(bjTime.getMinutes())}:${f(bjTime.getSeconds())}`;
