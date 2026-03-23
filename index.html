@@ -4,59 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>dryrun.cc — Co-Evolution</title>
-    
     <script src="https://cdn.staticfile.org/three.js/r128/three.min.js"></script>
-    
     <style>
         :root { --bg: #010309; --cyan: #00f2fe; --dim: rgba(148, 163, 184, 0.3); }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-        
-        /* 核心修复：强制占满物理视口，防止 Chrome 旋转后的空白边缘 */
         body, html { 
             background: var(--bg); color: #fff; 
             font-family: "SF Mono", "Monaco", "Consolas", monospace; 
             width: 100vw; height: 100vh; height: -webkit-fill-available;
             overflow: hidden; position: fixed; top: 0; left: 0;
         }
-
-        #canvas-container { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            z-index: 1; background: var(--bg); touch-action: none;
-        }
-        
-        /* 强制画布比例锁定 */
+        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; background: var(--bg); touch-action: none; }
         #canvas-container canvas { display: block; width: 100% !important; height: 100% !important; }
-
         .ui-overlay { 
-            position: absolute; top: 0; left: 0; z-index: 10; 
-            width: 100%; height: 100%; height: 100dvh; /* 使用动态视口高度 */
-            padding: clamp(30px, 6vw, 80px); 
-            display: flex; flex-direction: column;
-            pointer-events: none; 
+            position: absolute; top: 0; left: 0; z-index: 10; width: 100%; height: 100%; height: 100dvh;
+            padding: clamp(30px, 6vw, 80px); display: flex; flex-direction: column; pointer-events: none; 
         }
-
-        header { 
-            font-size: 10px; letter-spacing: 2px; color: var(--dim); text-transform: uppercase;
-            display: flex; align-items: center; margin-bottom: 2vh;
-        }
+        header { font-size: 10px; letter-spacing: 2px; color: var(--dim); text-transform: uppercase; display: flex; align-items: center; margin-bottom: 2vh; }
         .header-line { width: 30px; height: 1px; background: var(--cyan); opacity: 0.5; margin-right: 12px; }
-
         main { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; }
-        .hero-title { 
-            font-size: clamp(38px, 8vw, 90px); font-weight: 200; 
-            letter-spacing: -2px; line-height: 1.1; margin-bottom: 12px;
-        }
+        .hero-title { font-size: clamp(38px, 8vw, 90px); font-weight: 200; letter-spacing: -2px; line-height: 1.1; margin-bottom: 12px; }
         .hero-slogan { font-size: 14px; color: #94a3b8; font-weight: 300; letter-spacing: 0.5px; }
-
         .info-zone { margin-top: auto; padding-bottom: 20px; }
         .dynamic-meta { font-size: 10px; color: var(--cyan); opacity: 0.8; font-weight: 500; }
-
-        footer { 
-            display: flex; flex-direction: column; gap: 8px;
-            font-size: 9px; color: #475569; letter-spacing: 1px;
-            padding-bottom: env(safe-area-inset-bottom, 20px);
-        }
-
+        footer { display: flex; flex-direction: column; gap: 8px; font-size: 9px; color: #475569; letter-spacing: 1px; padding-bottom: env(safe-area-inset-bottom, 20px); }
         @media (min-width: 769px) {
             main { flex-direction: row; justify-content: space-between; align-items: flex-start; }
             .info-zone { text-align: right; margin-top: 30vh; }
@@ -82,43 +53,33 @@
             <div style="color: var(--cyan); opacity: 0.4; letter-spacing: 2px; font-size: 8px;">POWERED BY GEMINI</div>
         </footer>
     </div>
-
     <script>
         let scene, camera, renderer, group;
         let targetX = 0, targetY = 0, curX = 0, curY = 0;
         const isMobile = window.innerWidth < 768;
 
         function handleResize() {
-            const w = window.innerWidth;
-            const h = window.innerHeight;
+            const w = window.innerWidth, h = window.innerHeight;
             if (w <= 0 || h <= 0) return; 
-            
             const ratio = w / h;
             camera.aspect = ratio;
             camera.position.z = (w < 768) ? (ratio < 1 ? 16 : 14) : 12;
             camera.updateProjectionMatrix();
             camera.lookAt(0,0,0);
-            
             renderer.setSize(w, h);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // 允许最高2倍采样，提升清晰度
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         }
 
         function init() {
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x010309);
             scene.fog = new THREE.Fog(0x010309, 12, 45); 
-            
             camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 2.0, 1000); 
-
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false }); 
             document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-            handleResize(); // 初始对齐
-
+            handleResize();
             group = new THREE.Group();
             scene.add(group);
-
-            // 粒子与连线保持 V15 的精密配置
             const pCount = isMobile ? 4000 : 10000;
             const pGeom = new THREE.BufferGeometry();
             const posArr = new Float32Array(pCount * 3);
@@ -131,7 +92,6 @@
             }
             pGeom.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
             group.add(new THREE.Points(pGeom, new THREE.PointsMaterial({ color: 0x00a6fb, size: 0.008, transparent: true, opacity: 0.5, depthWrite: false })));
-
             const lCount = isMobile ? 800 : 2200;
             const lGeom = new THREE.BufferGeometry();
             const lPosArr = new Float32Array(lCount * 6);
@@ -142,12 +102,10 @@
             }
             lGeom.setAttribute('position', new THREE.BufferAttribute(lPosArr, 3));
             group.add(new THREE.LineSegments(lGeom, new THREE.LineBasicMaterial({ color: 0x00a6fb, transparent: true, opacity: 0.15, depthWrite: false })));
-
             window.addEventListener('mousemove', e => {
                 targetX = (e.clientX / window.innerWidth - 0.5) * 0.45;
                 targetY = (e.clientY / window.innerHeight - 0.5) * 0.35;
             }, { passive: true });
-
             animate();
         }
 
@@ -161,23 +119,27 @@
             renderer.render(scene, camera);
         }
 
-        // 核心修复：针对 Chrome 旋转的防抖重试机制
         window.addEventListener('resize', () => {
             handleResize();
-            // 解决移动端 Chrome 地址栏/键盘弹出导致的尺寸延迟计算
             setTimeout(handleResize, 100);
             setTimeout(handleResize, 300);
         }, { passive: true });
 
-        // 旋转专用监听
         window.addEventListener("orientationchange", () => {
             setTimeout(handleResize, 200);
         });
 
+        // 核心修复：北京时间 (UTC+8) 精准计算
         setInterval(() => {
             const el = document.getElementById('bj-time');
-            const bj = new Date(new Date().getTime() + (new Date().getTimezoneOffset() * 60000) + (8 * 3600000));
-            if(el) el.innerText = `BEIJING: ${bj.toISOString().replace('T', '_').substring(0, 19)}`;
+            const now = new Date();
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const bjTime = new Date(utc + (3600000 * 8));
+            
+            if(el) {
+                const f = (n) => String(n).padStart(2, '0');
+                el.innerText = `BEIJING: ${bjTime.getFullYear()}-${f(bjTime.getMonth()+1)}-${f(bjTime.getDate())}_${f(bjTime.getHours())}:${f(bjTime.getMinutes())}:${f(bjTime.getSeconds())}`;
+            }
         }, 1000);
 
         window.onload = init;
