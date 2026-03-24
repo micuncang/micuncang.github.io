@@ -39,7 +39,10 @@ These rules are default repository conventions and should be treated as mandator
 
 - All pages and changes must support both desktop and mobile layouts.
 - Do not change existing site copy unless the instruction clearly asks for copywriting, translation, or text edits.
+- Do not add filler copy or decorative pseudo-information without real purpose. Avoid meaningless labels, fake metrics, or placeholder modules unless they are explicitly requested and clearly marked as temporary.
 - Keep the overall design direction aligned with this brand: technological, minimal, visually striking, and thought-provoking.
+- Interactive entrances must remain minimal and spacious. Avoid cluttered entry cards, excessive helper text, or overdesigned controls that weaken a simple, confident landing composition.
+- Interfaces should be as self-evident as possible. Avoid explanatory UI copy unless it is necessary for comprehension, and prefer direct visual cues over labels that explain the obvious.
 - Keep layout and typography deliberate: spacing, alignment, and line length should feel balanced, and text must not wrap in ways that break phrasing or reading rhythm.
 
 When proposing UI changes, prefer strong contrast, clean spacing, and focused motion over decorative complexity.

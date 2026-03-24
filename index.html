@@ -34,7 +34,7 @@
         header { font-size: 10px; letter-spacing: 2px; color: rgba(215, 229, 242, 0.72); text-transform: uppercase; display: flex; align-items: center; margin-bottom: 2vh; text-shadow: 0 0 12px rgba(0, 0, 0, 0.28); }
         .header-line { width: 30px; height: 1px; background: var(--cyan); opacity: 0.5; margin-right: 12px; }
 
-        main { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; }
+        main { flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 36px; }
         .hero-zone { max-width: min(680px, 88vw); }
         .hero-title {
             font-size: clamp(38px, 8vw, 90px);
@@ -44,6 +44,7 @@
             margin-bottom: 14px;
             color: #f8fbff;
             text-shadow: 0 0 24px rgba(0, 0, 0, 0.28);
+            white-space: nowrap;
         }
         .hero-slogan {
             font-size: 14px;
@@ -54,14 +55,233 @@
             text-shadow: 0 0 16px rgba(0, 0, 0, 0.24);
         }
 
-        .info-zone { margin-top: auto; padding-bottom: 20px; }
-        .dynamic-meta { font-size: 10px; color: #7ef8ff; opacity: 0.96; font-weight: 600; font-family: monospace; text-shadow: 0 0 14px rgba(54, 246, 255, 0.18); }
+        .info-zone {
+            margin-top: auto;
+            padding-bottom: 20px;
+            width: min(280px, 100%);
+            display: grid;
+            gap: 18px;
+            pointer-events: auto;
+        }
+        .access-cluster {
+            display: grid;
+            gap: 10px;
+            pointer-events: auto;
+        }
+        .access-cluster::before {
+            content: "";
+            width: 42px;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(126, 248, 255, 0.58), transparent);
+            opacity: 0.7;
+        }
+        .channel-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .channel-card {
+            position: relative;
+            border: 0;
+            background: transparent;
+            padding: 12px 0;
+            color: #e9f6ff;
+            text-align: left;
+            cursor: pointer;
+            transition: transform 180ms ease, color 180ms ease, opacity 180ms ease, letter-spacing 180ms ease, filter 180ms ease;
+        }
+        .channel-card:hover,
+        .channel-card:focus-visible {
+            transform: translateX(6px);
+            color: #f7fbff;
+            filter: brightness(1.06);
+            outline: none;
+        }
+        .channel-card::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(183, 220, 232, 0.6);
+            transform: translateY(-50%);
+        }
+        .channel-card::after {
+            content: "";
+            position: absolute;
+            left: 14px;
+            width: 32px;
+            top: 50%;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(126, 248, 255, 0.44), transparent);
+            opacity: 0.48;
+            transform: translateY(-50%);
+        }
+        .channel-name {
+            display: block;
+            padding-left: 56px;
+            font-size: 20px;
+            letter-spacing: 2.8px;
+            color: #f2f8fd;
+        }
+        .channel-card:hover .channel-name,
+        .channel-card:focus-visible .channel-name {
+            letter-spacing: 3.4px;
+        }
+        .channel-card:hover::before,
+        .channel-card:focus-visible::before,
+        .channel-card:hover::after,
+        .channel-card:focus-visible::after {
+            opacity: 1;
+        }
+        .channel-card:hover::before,
+        .channel-card:focus-visible::before {
+            background: rgba(126, 248, 255, 0.72);
+            box-shadow: 0 0 10px rgba(126, 248, 255, 0.16);
+        }
+        .ambient-trace {
+            position: relative;
+            height: 28px;
+            overflow: hidden;
+            opacity: 0.54;
+        }
+        .ambient-trace::before,
+        .ambient-trace::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+        }
+        .ambient-trace::before {
+            top: 50%;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(126, 248, 255, 0.08), rgba(126, 248, 255, 0.28), transparent 68%);
+            transform: translateY(-50%);
+        }
+        .ambient-trace::after {
+            top: 50%;
+            width: 28%;
+            height: 5px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, transparent, rgba(126, 248, 255, 0.38), transparent);
+            transform: translateY(-50%);
+            filter: blur(1px);
+            animation: trace-drift 5.8s ease-in-out infinite;
+        }
+
+        @keyframes trace-drift {
+            0% { transform: translateY(-50%) translateX(-8%); opacity: 0.2; }
+            50% { transform: translateY(-50%) translateX(94%); opacity: 0.72; }
+            100% { transform: translateY(-50%) translateX(208%); opacity: 0.2; }
+        }
+        .secondary-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 30;
+            display: grid;
+            grid-template-columns: 1fr min(480px, calc(100vw - 28px));
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 220ms ease;
+        }
+        .secondary-layer.is-open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .secondary-backdrop {
+            background: rgba(1, 4, 10, 0.34);
+            backdrop-filter: blur(4px);
+        }
+        .secondary-panel {
+            display: grid;
+            grid-template-rows: auto 1fr;
+            border-left: 1px solid rgba(126, 248, 255, 0.16);
+            background:
+                radial-gradient(circle at top left, rgba(16, 43, 61, 0.42), transparent 28%),
+                linear-gradient(180deg, rgba(7, 15, 28, 0.96), rgba(4, 10, 19, 0.94));
+            box-shadow: -24px 0 60px rgba(0, 0, 0, 0.32);
+            padding: clamp(22px, 4vw, 32px);
+            transform: translateX(28px);
+            transition: transform 220ms ease;
+        }
+        .secondary-layer.is-open .secondary-panel {
+            transform: translateX(0);
+        }
+        .secondary-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 18px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(126, 248, 255, 0.12);
+        }
+        .secondary-kicker {
+            font-size: 9px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(126, 248, 255, 0.7);
+        }
+        .secondary-title {
+            margin-top: 8px;
+            font-size: clamp(24px, 3vw, 34px);
+            font-weight: 250;
+            letter-spacing: -1px;
+            line-height: 1.14;
+            color: #f2f8fd;
+        }
+        .secondary-close {
+            border: 1px solid rgba(126, 248, 255, 0.16);
+            background: rgba(10, 19, 34, 0.62);
+            color: #d8ebf8;
+            min-width: 38px;
+            min-height: 38px;
+            font: inherit;
+            cursor: pointer;
+        }
+        .secondary-body {
+            display: grid;
+            gap: 14px;
+            align-content: start;
+            padding-top: 20px;
+        }
+        .view-card {
+            padding: 16px 18px;
+            border: 1px solid rgba(126, 248, 255, 0.12);
+            background: rgba(8, 16, 28, 0.52);
+        }
+        .view-card-kicker {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 8px;
+            letter-spacing: 1.8px;
+            color: rgba(126, 248, 255, 0.62);
+            text-transform: uppercase;
+        }
+        .view-card-title {
+            font-size: 16px;
+            line-height: 1.5;
+            color: #edf7ff;
+        }
+        .view-card-text {
+            font-size: 12px;
+            line-height: 1.8;
+            color: #b7c8d8;
+        }
+        .secondary-note {
+            font-size: 10px;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            color: rgba(126, 248, 255, 0.56);
+        }
 
         footer { display: flex; flex-direction: column; gap: 8px; font-size: 9px; color: #93a6bc; letter-spacing: 1px; padding-bottom: env(safe-area-inset-bottom, 20px); text-shadow: 0 0 12px rgba(0, 0, 0, 0.24); }
 
         @media (min-width: 769px) {
-            main { flex-direction: row; justify-content: space-between; align-items: flex-start; }
-            .info-zone { text-align: right; margin-top: 30vh; }
+            main { flex-direction: row; justify-content: space-between; align-items: stretch; }
+            .hero-zone { padding-top: 3vh; }
+            .info-zone { align-self: end; margin-top: 20vh; }
             footer { flex-direction: row; justify-content: space-between; align-items: flex-end; }
         }
 
@@ -73,6 +293,22 @@
             }
             .hero-zone { max-width: 100%; }
             .hero-title { letter-spacing: -1.2px; }
+            .info-zone { width: 100%; }
+            .channel-card { padding: 12px 0; }
+            .channel-name { padding-left: 46px; font-size: 17px; letter-spacing: 2.2px; }
+            .secondary-layer {
+                grid-template-columns: 1fr;
+            }
+            .secondary-panel {
+                grid-row: 2;
+                min-height: 68vh;
+                border-left: 0;
+                border-top: 1px solid rgba(126, 248, 255, 0.16);
+                transform: translateY(24px);
+            }
+            .secondary-layer.is-open .secondary-panel {
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
@@ -86,18 +322,109 @@
                 <p class="hero-slogan">Rational intelligence, shaped by thoughts.</p>
             </div>
             <div class="info-zone">
-                <div class="dynamic-meta" id="bj-time">BEIJING: SYNCING...</div>
+                <div class="access-cluster" aria-label="Extensions">
+                    <div class="channel-grid">
+                        <button class="channel-card" type="button" data-view="view-human" aria-label="Open HUMAN panel">
+                            <span class="channel-name">HUMAN</span>
+                        </button>
+                        <button class="channel-card" type="button" data-view="view-agent" aria-label="Open AGENT panel">
+                            <span class="channel-name">AGENT</span>
+                        </button>
+                    </div>
+                    <div class="ambient-trace" aria-hidden="true"></div>
+                </div>
             </div>
         </main>
         <footer>
             <div>THE FUTURE IS UNFOLDING BEYOND THE HORIZON.</div>
-            <div style="color: var(--cyan); opacity: 0.4; letter-spacing: 2px; font-size: 8px;">POWERED BY GEMINI</div>
+            <div style="color: var(--cyan); opacity: 0.46; letter-spacing: 2px; font-size: 8px;">TECHNICAL SUPPORT BY GEMINI / CODEX</div>
         </footer>
     </div>
+    <aside class="secondary-layer" id="secondary-layer" aria-hidden="true">
+        <div class="secondary-backdrop" id="secondary-backdrop"></div>
+        <section class="secondary-panel" aria-label="Secondary content">
+            <div class="secondary-head">
+                <div>
+                    <div class="secondary-kicker" id="secondary-kicker">HUMAN</div>
+                    <h2 class="secondary-title" id="secondary-title">Content is under construction.</h2>
+                </div>
+                <button class="secondary-close" id="secondary-close" type="button" aria-label="Close secondary panel">X</button>
+            </div>
+            <div class="secondary-body">
+                <div class="view-card">
+                    <span class="view-card-kicker">Status</span>
+                    <div class="view-card-title" id="secondary-card-title">The room is reserved, the furniture is still on the way.</div>
+                </div>
+                <div class="view-card">
+                    <span class="view-card-kicker">Note</span>
+                    <div class="view-card-text" id="secondary-card-text">Please check back soon. The pixels have been notified.</div>
+                </div>
+                <div class="secondary-note" id="secondary-note">Building quietly.</div>
+            </div>
+        </section>
+    </aside>
     <script>
         let scene, camera, renderer, group;
         let targetX = 0, targetY = 0, curX = 0, curY = 0;
         const isMobile = window.innerWidth < 768;
+        const popupContent = {
+            'view-human': {
+                kicker: 'HUMAN',
+                title: 'Content is under construction.',
+                cardTitle: 'The HUMAN wing is being tuned for actual people.',
+                cardText: 'Chairs are being arranged. Thoughts are being aligned. The door is not stuck, just politely not ready.',
+                note: 'Come back soon.'
+            },
+            'view-agent': {
+                kicker: 'AGENT',
+                title: 'Content is under construction.',
+                cardTitle: 'The AGENT wing is still teaching the machines how to sit straight.',
+                cardText: 'A few system ghosts are still labeling boxes and pretending it is deployment. Progress is real, just not public yet.',
+                note: 'Compilation of ideas in progress.'
+            }
+        };
+
+        function openSecondaryLayer(viewId = 'view-human') {
+            const layer = document.getElementById('secondary-layer');
+            const content = popupContent[viewId] || popupContent['view-human'];
+            const kicker = document.getElementById('secondary-kicker');
+            const title = document.getElementById('secondary-title');
+            const cardTitle = document.getElementById('secondary-card-title');
+            const cardText = document.getElementById('secondary-card-text');
+            const note = document.getElementById('secondary-note');
+            if (!layer) return;
+            if (kicker) kicker.textContent = content.kicker;
+            if (title) title.textContent = content.title;
+            if (cardTitle) cardTitle.textContent = content.cardTitle;
+            if (cardText) cardText.textContent = content.cardText;
+            if (note) note.textContent = content.note;
+            layer.classList.add('is-open');
+            layer.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeSecondaryLayer() {
+            const layer = document.getElementById('secondary-layer');
+            if (!layer) return;
+            layer.classList.remove('is-open');
+            layer.setAttribute('aria-hidden', 'true');
+        }
+
+        function bindSecondaryLayer() {
+            const close = document.getElementById('secondary-close');
+            const backdrop = document.getElementById('secondary-backdrop');
+            const channelCards = document.querySelectorAll('.channel-card');
+            if (!channelCards.length) return;
+
+            channelCards.forEach((card) => {
+                card.addEventListener('click', () => openSecondaryLayer(card.dataset.view));
+            });
+
+            if (close) close.addEventListener('click', closeSecondaryLayer);
+            if (backdrop) backdrop.addEventListener('click', closeSecondaryLayer);
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') closeSecondaryLayer();
+            });
+        }
 
         function handleResize() {
             const w = window.innerWidth, h = window.innerHeight;
@@ -158,6 +485,7 @@
                 targetX = (e.clientX / window.innerWidth - 0.5) * 0.45;
                 targetY = (e.clientY / window.innerHeight - 0.5) * 0.35;
             }, { passive: true });
+            bindSecondaryLayer();
             animate();
         }
 
@@ -175,18 +503,6 @@
             handleResize();
             setTimeout(handleResize, 100);
         }, { passive: true });
-
-        // BEIJING 时间精准同步
-        setInterval(() => {
-            const el = document.getElementById('bj-time');
-            const now = new Date();
-            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-            const bjTime = new Date(utc + (3600000 * 8));
-            if(el) {
-                const f = (n) => String(n).padStart(2, '0');
-                el.innerText = `BEIJING: ${bjTime.getFullYear()}-${f(bjTime.getMonth()+1)}-${f(bjTime.getDate())}_${f(bjTime.getHours())}:${f(bjTime.getMinutes())}:${f(bjTime.getSeconds())}`;
-            }
-        }, 1000);
 
         window.onload = init;
     </script>
