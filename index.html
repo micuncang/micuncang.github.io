@@ -10,7 +10,7 @@
 
     <script src="https://cdn.staticfile.org/three.js/r128/three.min.js"></script>
     <style>
-        :root { --bg: #010309; --cyan: #00f2fe; --dim: rgba(148, 163, 184, 0.3); }
+        :root { --bg: #07111f; --cyan: #36f6ff; --dim: rgba(191, 211, 230, 0.42); }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
         
         body, html { 
@@ -21,29 +21,58 @@
         }
 
         #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; background: var(--bg); touch-action: none; }
-        #canvas-container canvas { display: block; width: 100% !important; height: 100% !important; opacity: 0.65; }
+        #canvas-container canvas { display: block; width: 100% !important; height: 100% !important; opacity: 0.78; }
 
         .ui-overlay { 
             position: absolute; top: 0; left: 0; z-index: 10; width: 100%; height: 100%; height: 100dvh;
-            padding: clamp(30px, 6vw, 80px); display: flex; flex-direction: column; pointer-events: none; 
+            padding: clamp(30px, 6vw, 80px); display: flex; flex-direction: column; pointer-events: none;
+            background:
+                radial-gradient(circle at 18% 22%, rgba(12, 24, 42, 0.54), transparent 32%),
+                linear-gradient(90deg, rgba(5, 11, 22, 0.72) 0%, rgba(5, 11, 22, 0.42) 38%, rgba(5, 11, 22, 0.16) 100%);
         }
 
-        header { font-size: 10px; letter-spacing: 2px; color: var(--dim); text-transform: uppercase; display: flex; align-items: center; margin-bottom: 2vh; }
+        header { font-size: 10px; letter-spacing: 2px; color: rgba(215, 229, 242, 0.72); text-transform: uppercase; display: flex; align-items: center; margin-bottom: 2vh; text-shadow: 0 0 12px rgba(0, 0, 0, 0.28); }
         .header-line { width: 30px; height: 1px; background: var(--cyan); opacity: 0.5; margin-right: 12px; }
 
         main { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; }
-        .hero-title { font-size: clamp(38px, 8vw, 90px); font-weight: 200; letter-spacing: -2px; line-height: 1.1; margin-bottom: 12px; color: #ececec; }
-        .hero-slogan { font-size: 14px; color: #94a3b8; font-weight: 300; letter-spacing: 0.5px; }
+        .hero-zone { max-width: min(680px, 88vw); }
+        .hero-title {
+            font-size: clamp(38px, 8vw, 90px);
+            font-weight: 220;
+            letter-spacing: -1.6px;
+            line-height: 1.08;
+            margin-bottom: 14px;
+            color: #f8fbff;
+            text-shadow: 0 0 24px rgba(0, 0, 0, 0.28);
+        }
+        .hero-slogan {
+            font-size: 14px;
+            color: #d2dde9;
+            font-weight: 400;
+            letter-spacing: 0.35px;
+            line-height: 1.7;
+            text-shadow: 0 0 16px rgba(0, 0, 0, 0.24);
+        }
 
         .info-zone { margin-top: auto; padding-bottom: 20px; }
-        .dynamic-meta { font-size: 10px; color: var(--cyan); opacity: 0.8; font-weight: 500; font-family: monospace; }
+        .dynamic-meta { font-size: 10px; color: #7ef8ff; opacity: 0.96; font-weight: 600; font-family: monospace; text-shadow: 0 0 14px rgba(54, 246, 255, 0.18); }
 
-        footer { display: flex; flex-direction: column; gap: 8px; font-size: 9px; color: #475569; letter-spacing: 1px; padding-bottom: env(safe-area-inset-bottom, 20px); }
+        footer { display: flex; flex-direction: column; gap: 8px; font-size: 9px; color: #93a6bc; letter-spacing: 1px; padding-bottom: env(safe-area-inset-bottom, 20px); text-shadow: 0 0 12px rgba(0, 0, 0, 0.24); }
 
         @media (min-width: 769px) {
             main { flex-direction: row; justify-content: space-between; align-items: flex-start; }
             .info-zone { text-align: right; margin-top: 30vh; }
             footer { flex-direction: row; justify-content: space-between; align-items: flex-end; }
+        }
+
+        @media (max-width: 768px) {
+            .ui-overlay {
+                background:
+                    radial-gradient(circle at 20% 18%, rgba(12, 24, 42, 0.48), transparent 34%),
+                    linear-gradient(180deg, rgba(5, 11, 22, 0.72) 0%, rgba(5, 11, 22, 0.34) 42%, rgba(5, 11, 22, 0.2) 100%);
+            }
+            .hero-zone { max-width: 100%; }
+            .hero-title { letter-spacing: -1.2px; }
         }
     </style>
 </head>
@@ -84,8 +113,8 @@
 
         function init() {
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x010309);
-            scene.fog = new THREE.Fog(0x010309, 12, 45); 
+            scene.background = new THREE.Color(0x07111f);
+            scene.fog = new THREE.Fog(0x07111f, 13, 48); 
             camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 2.0, 1000); 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false }); 
             document.getElementById('canvas-container').appendChild(renderer.domElement);
@@ -105,7 +134,7 @@
                 posArr[i*3+2] = r * Math.cos(p);
             }
             pGeom.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
-            group.add(new THREE.Points(pGeom, new THREE.PointsMaterial({ color: 0x00a6fb, size: 0.008, transparent: true, opacity: 0.45, depthWrite: false })));
+            group.add(new THREE.Points(pGeom, new THREE.PointsMaterial({ color: 0x36f6ff, size: 0.009, transparent: true, opacity: 0.58, depthWrite: false })));
             
             const lCount = isMobile ? 800 : 2200;
             const lGeom = new THREE.BufferGeometry();
@@ -119,9 +148,9 @@
             
             // 3. 强调连线网格：提升不透明度以展现架构感
             group.add(new THREE.LineSegments(lGeom, new THREE.LineBasicMaterial({ 
-                color: 0x00a6fb, 
+                color: 0x36f6ff, 
                 transparent: true, 
-                opacity: 0.22, 
+                opacity: 0.3, 
                 depthWrite: false 
             })));
 
