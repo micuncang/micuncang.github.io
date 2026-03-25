@@ -44,6 +44,7 @@ These rules are default repository conventions and should be treated as mandator
 - Clean and decisive design is a standing priority. When choosing between extra expression and clarity, prefer the cleaner, sharper solution.
 - Interactive entrances must remain minimal and spacious. Avoid cluttered entry cards, excessive helper text, or overdesigned controls that weaken a simple, confident landing composition.
 - Interfaces should be as self-evident as possible. Avoid explanatory UI copy unless it is necessary for comprehension, and prefer direct visual cues over labels that explain the obvious.
+- Any third-party framework introduced into the project must be evaluated with future upgrades and long-term maintenance in mind. Keep framework code and user-defined content/customization as separate as possible.
 - Keep layout and typography deliberate: spacing, alignment, and line length should feel balanced, and text must not wrap in ways that break phrasing or reading rhythm.
 
 When proposing UI changes, prefer strong contrast, clean spacing, and focused motion over decorative complexity.

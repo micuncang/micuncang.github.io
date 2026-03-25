@@ -1,0 +1,76 @@
+name: Deploy Site to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: human/package-lock.json
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Install Quartz dependencies
+        working-directory: human
+        run: npm ci
+
+      - name: Build Quartz
+        working-directory: human
+        env:
+          NODE_OPTIONS: --max-old-space-size=8192
+        run: npx quartz build
+
+      - name: Assemble Pages artifact
+        run: |
+          mkdir -p dist/human
+          rsync -av \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='human/' \
+            --exclude='node_modules/' \
+            --exclude='.idea/' \
+            --exclude='dist/' \
+            ./ dist/
+          rsync -av human/public/ dist/human/
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

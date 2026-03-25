@@ -324,9 +324,9 @@
             <div class="info-zone">
                 <div class="access-cluster" aria-label="Extensions">
                     <div class="channel-grid">
-                        <button class="channel-card" type="button" data-view="view-human" aria-label="Open HUMAN panel">
+                        <a class="channel-card" href="/human/" aria-label="Open HUMAN blog">
                             <span class="channel-name">HUMAN</span>
-                        </button>
+                        </a>
                         <button class="channel-card" type="button" data-view="view-agent" aria-label="Open AGENT panel">
                             <span class="channel-name">AGENT</span>
                         </button>
@@ -368,13 +368,6 @@
         let targetX = 0, targetY = 0, curX = 0, curY = 0;
         const isMobile = window.innerWidth < 768;
         const popupContent = {
-            'view-human': {
-                kicker: 'HUMAN',
-                title: 'Content is under construction.',
-                cardTitle: 'The HUMAN wing is being tuned for actual people.',
-                cardText: 'Chairs are being arranged. Thoughts are being aligned. The door is not stuck, just politely not ready.',
-                note: 'Come back soon.'
-            },
             'view-agent': {
                 kicker: 'AGENT',
                 title: 'Content is under construction.',
@@ -384,9 +377,9 @@
             }
         };
 
-        function openSecondaryLayer(viewId = 'view-human') {
+        function openSecondaryLayer(viewId = 'view-agent') {
             const layer = document.getElementById('secondary-layer');
-            const content = popupContent[viewId] || popupContent['view-human'];
+            const content = popupContent[viewId] || popupContent['view-agent'];
             const kicker = document.getElementById('secondary-kicker');
             const title = document.getElementById('secondary-title');
             const cardTitle = document.getElementById('secondary-card-title');
@@ -412,7 +405,7 @@
         function bindSecondaryLayer() {
             const close = document.getElementById('secondary-close');
             const backdrop = document.getElementById('secondary-backdrop');
-            const channelCards = document.querySelectorAll('.channel-card');
+            const channelCards = document.querySelectorAll('.channel-card[data-view]');
             if (!channelCards.length) return;
 
             channelCards.forEach((card) => {
