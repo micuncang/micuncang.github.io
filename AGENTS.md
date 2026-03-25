@@ -30,6 +30,7 @@ Use 4-space indentation in `index.html` to match the existing file. Keep the pag
 - Use descriptive lowercase CSS class names such as `menu-shell` or `hero-title`.
 - Keep JavaScript functions small and focused, for example `bindMenu()` or `handleResize()`.
 - Preserve the current visual language: dark background, restrained cyan accents, and minimal typography.
+- When changing an element’s semantic tag, such as `button` to `a`, explicitly restate critical visual properties on the shared class. Do not rely on browser defaults or inheritance for `font`, `font-weight`, `display`, `color`, `text-decoration`, or `appearance`.
 
 No formatter or linter is configured, so keep edits tidy and consistent by hand.
 
@@ -46,6 +47,7 @@ These rules are default repository conventions and should be treated as mandator
 - Interfaces should be as self-evident as possible. Avoid explanatory UI copy unless it is necessary for comprehension, and prefer direct visual cues over labels that explain the obvious.
 - Any third-party framework introduced into the project must be evaluated with future upgrades and long-term maintenance in mind. Keep framework code and user-defined content/customization as separate as possible.
 - Keep layout and typography deliberate: spacing, alignment, and line length should feel balanced, and text must not wrap in ways that break phrasing or reading rhythm.
+- Shared brand-critical UI elements must keep stable visual behavior even if their underlying HTML semantics change. Functional refactors must not introduce unintended shifts in weight, width, spacing, underline, or interaction feel.
 
 When proposing UI changes, prefer strong contrast, clean spacing, and focused motion over decorative complexity.
 
@@ -57,6 +59,7 @@ There is no automated test suite yet. Manual verification is required.
 - Confirm animations render without console errors.
 - Re-test time display, menu interactions, and resize behavior after UI changes.
 - Verify that unchanged copy remains intact unless text edits were explicitly requested.
+- When a control changes tag or interaction type, verify that its typography, spacing, and hover/focus behavior still match adjacent controls and prior intent.
 
 If you introduce automated tests, document the command here and keep the setup lightweight.
 
