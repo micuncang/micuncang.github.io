@@ -81,12 +81,15 @@
             gap: 10px;
         }
         .channel-card {
+            display: block;
             position: relative;
             border: 0;
             background: transparent;
             padding: 12px 0;
             color: #e9f6ff;
+            font: inherit;
             text-align: left;
+            text-decoration: none;
             cursor: pointer;
             transition: transform 180ms ease, color 180ms ease, opacity 180ms ease, letter-spacing 180ms ease, filter 180ms ease;
         }
@@ -123,7 +126,9 @@
             display: block;
             padding-left: 56px;
             font-size: 20px;
-            letter-spacing: 2.8px;
+            font-family: "JetBrains Mono", "SF Mono", "Monaco", monospace;
+            font-weight: 560;
+            letter-spacing: 2.4px;
             color: #f2f8fd;
         }
         .channel-card:hover .channel-name,
