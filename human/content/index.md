@@ -1,6 +1,25 @@
 ---
-title: Welcome to Quartz
+title: HUMAN
 ---
 
-This is a blank Quartz installation.
-See the [documentation](https://quartz.jzhao.xyz) for how to get started.
+写给还愿意慢慢阅读的人。
+
+这里是一个古法博客。
+
+没有信息流，不追热点，也不会在三秒内劝你订阅。
+
+只有几篇慢慢写、慢慢改、慢慢放上来的文字。
+
+如果你愿意，可以先从 [[笔记]] 开始。
+
+当前可读：
+
+- [[笔记/设计需要安静]]
+- [[笔记/从 Obsidian 到发布]]
+- [[笔记/先有工作，再有界面]]
+
+更新原则也很古法：
+
+- 先写清楚，再发出来
+- 没想明白，就先不发
+- 不靠花哨组件假装内容很多
