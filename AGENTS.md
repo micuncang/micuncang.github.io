@@ -48,6 +48,7 @@ These rules are default repository conventions and should be treated as mandator
 - Any third-party framework introduced into the project must be evaluated with future upgrades and long-term maintenance in mind. Keep framework code and user-defined content/customization as separate as possible.
 - Keep layout and typography deliberate: spacing, alignment, and line length should feel balanced, and text must not wrap in ways that break phrasing or reading rhythm.
 - Shared brand-critical UI elements must keep stable visual behavior even if their underlying HTML semantics change. Functional refactors must not introduce unintended shifts in weight, width, spacing, underline, or interaction feel.
+- All external resources must be evaluated for fast access from both domestic and international networks. Prefer self-hosted assets for critical runtime dependencies; if a CDN is necessary, choose broadly reachable sources and provide a practical fallback.
 
 When proposing UI changes, prefer strong contrast, clean spacing, and focused motion over decorative complexity.
 

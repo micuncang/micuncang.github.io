@@ -8,7 +8,12 @@
     
     <title>Co-Evolution</title>
 
-    <script src="https://cdn.staticfile.org/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script>
+        if (!window.THREE) {
+            document.write('<script src="https://cdn.staticfile.org/three.js/r128/three.min.js"><\/script>');
+        }
+    </script>
     <style>
         :root { --bg: #091523; --cyan: #8eefff; --dim: rgba(188, 206, 222, 0.46); }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
@@ -38,13 +43,18 @@
         .hero-zone { max-width: min(680px, 88vw); }
         .hero-title {
             font-size: clamp(38px, 8vw, 90px);
-            font-weight: 220;
-            letter-spacing: -1.6px;
-            line-height: 1.08;
+            font-family: "Didot", "Bodoni 72", "Bodoni MT", "New York", "Iowan Old Style", serif;
+            font-style: italic;
+            font-weight: 400;
+            letter-spacing: -3.4px;
+            line-height: 0.92;
             margin-bottom: 14px;
             color: #f3f8fc;
-            text-shadow: 0 0 24px rgba(0, 0, 0, 0.28);
+            text-shadow: 0 0 24px rgba(0, 0, 0, 0.22);
             white-space: nowrap;
+            text-rendering: optimizeLegibility;
+            font-feature-settings: "liga" 1, "kern" 1, "dlig" 1;
+            font-variant-ligatures: discretionary-ligatures;
         }
         .hero-slogan {
             font-size: 14px;
@@ -153,25 +163,27 @@
             opacity: 0.54;
         }
         .support-signature {
-            display: grid;
-            gap: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             align-content: end;
             justify-items: end;
             color: #95a9bc;
             pointer-events: none;
             text-align: right;
+            white-space: nowrap;
         }
         .support-label {
             font-size: 8px;
-            letter-spacing: 2px;
+            letter-spacing: 1.8px;
             text-transform: uppercase;
-            color: rgba(142, 239, 255, 0.34);
+            color: rgba(142, 239, 255, 0.16);
         }
         .support-value {
             font-size: 9px;
-            letter-spacing: 1.6px;
-            line-height: 1.5;
-            color: #aebecd;
+            letter-spacing: 1.2px;
+            line-height: 1;
+            color: rgba(142, 239, 255, 0.16);
         }
         .ambient-trace::before,
         .ambient-trace::after {
@@ -302,13 +314,13 @@
             color: rgba(124, 238, 255, 0.44);
         }
 
-        footer { display: flex; flex-direction: column; gap: 10px; font-size: 9px; color: #9aaabd; letter-spacing: 1px; padding-bottom: env(safe-area-inset-bottom, 20px); text-shadow: 0 0 12px rgba(0, 0, 0, 0.24); }
+        footer { display: flex; flex-direction: column; gap: 12px; font-size: 9px; color: #9aaabd; letter-spacing: 1px; padding-bottom: env(safe-area-inset-bottom, 20px); text-shadow: 0 0 12px rgba(0, 0, 0, 0.24); }
 
         @media (min-width: 769px) {
             main { flex-direction: row; justify-content: space-between; align-items: stretch; }
             .hero-zone { padding-top: 3vh; }
             .info-zone { align-self: end; margin-top: 14vh; }
-            footer { flex-direction: row; justify-content: space-between; align-items: flex-end; }
+            footer { flex-direction: row; justify-content: space-between; align-items: flex-end; padding-top: 10px; }
         }
 
         @media (max-width: 768px) {
@@ -318,11 +330,14 @@
                     linear-gradient(180deg, rgba(6, 13, 24, 0.62) 0%, rgba(6, 13, 24, 0.28) 42%, rgba(6, 13, 24, 0.14) 100%);
             }
             .hero-zone { max-width: 100%; }
-            .hero-title { letter-spacing: -1.2px; }
+            .hero-title {
+                letter-spacing: -2.1px;
+                line-height: 0.96;
+            }
             .info-zone { width: 100%; }
             .channel-card { padding: 12px 0; }
             .channel-name { padding-left: 46px; font-size: 17px; letter-spacing: 2.2px; }
-            .support-signature { justify-items: start; text-align: left; }
+            .support-signature { justify-content: flex-start; text-align: left; gap: 8px; }
             .secondary-layer {
                 grid-template-columns: 1fr;
             }
@@ -365,8 +380,8 @@
         <footer>
             <div>THE FUTURE IS UNFOLDING BEYOND THE HORIZON.</div>
             <div class="support-signature" aria-hidden="true">
-                <div class="support-label">Technical Support</div>
-                <div class="support-value">GEMINI / CODEX</div>
+                <span class="support-label">Technical Support</span>
+                <span class="support-value">GEMINI / CODEX</span>
             </div>
         </footer>
     </div>
