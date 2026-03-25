@@ -1,11 +1,31 @@
 @use "./base.scss";
 
 body {
+    color-scheme: dark;
     font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
     background:
         radial-gradient(circle at 14% 18%, rgba(54, 246, 255, 0.08), transparent 24%),
         radial-gradient(circle at 80% 16%, rgba(124, 238, 255, 0.05), transparent 20%),
         linear-gradient(180deg, #040a13 0%, #07111f 58%, #071423 100%);
+    color: var(--darkgray);
+}
+
+html,
+body,
+.page,
+#quartz-body,
+.sidebar,
+.sidebar.left,
+.sidebar.right,
+.explorer,
+.explorer-content,
+.search,
+.search-container,
+button.mobile-explorer,
+button.desktop-explorer,
+input,
+textarea {
+    background-color: transparent;
     color: var(--darkgray);
 }
 
@@ -171,4 +191,36 @@ article li {
     font-weight: 400;
     line-height: 1.7;
     color: rgba(215, 228, 239, 0.82);
+}
+
+button.mobile-explorer,
+button.desktop-explorer,
+.folder-container div > button,
+.folder-container div > a,
+.explorer-content ul li > a,
+.page-title a {
+    color: var(--dark);
+}
+
+input,
+textarea {
+    border-color: rgba(124, 238, 255, 0.12);
+}
+
+@media (max-width: 800px) {
+    .page > #quartz-body .sidebar.left:has(.explorer) {
+        background: rgba(7, 17, 31, 0.96);
+        border-bottom: 1px solid rgba(124, 238, 255, 0.08);
+        backdrop-filter: blur(10px);
+    }
+
+    .explorer-content,
+    .search-container {
+        background: rgba(7, 17, 31, 0.92);
+    }
+
+    button.mobile-explorer,
+    button.desktop-explorer {
+        color: var(--dark);
+    }
 }
