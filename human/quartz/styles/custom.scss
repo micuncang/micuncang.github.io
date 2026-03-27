@@ -4,9 +4,9 @@ body {
     color-scheme: dark;
     font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
     background:
-        radial-gradient(circle at 14% 18%, rgba(54, 246, 255, 0.08), transparent 24%),
-        radial-gradient(circle at 80% 16%, rgba(124, 238, 255, 0.05), transparent 20%),
-        linear-gradient(180deg, #040a13 0%, #07111f 58%, #071423 100%);
+        radial-gradient(circle at 14% 18%, rgba(142, 239, 255, 0.04), transparent 24%),
+        radial-gradient(circle at 80% 16%, rgba(113, 200, 214, 0.03), transparent 20%),
+        linear-gradient(180deg, #06101a 0%, #08131f 58%, #0a1623 100%);
     color: var(--darkgray);
 }
 
@@ -31,7 +31,7 @@ textarea {
 
 a {
     color: inherit;
-    text-decoration-color: rgba(124, 238, 255, 0.28);
+    text-decoration-color: rgba(142, 239, 255, 0.18);
 }
 
 a:hover {
@@ -39,7 +39,7 @@ a:hover {
 }
 
 ::selection {
-    background: rgba(54, 246, 255, 0.18);
+    background: rgba(142, 239, 255, 0.12);
 }
 
 .page-title a,
@@ -63,32 +63,32 @@ h6 {
 
 .content-meta,
 blockquote {
-    color: rgba(215, 228, 239, 0.76);
+    color: rgba(202, 215, 226, 0.72);
 }
 
 blockquote {
-    border-left-color: rgba(124, 238, 255, 0.24);
+    border-left-color: rgba(142, 239, 255, 0.16);
 }
 
 pre {
-    border-color: rgba(124, 238, 255, 0.12);
-    background: rgba(9, 16, 27, 0.82);
+    border-color: rgba(142, 239, 255, 0.08);
+    background: rgba(8, 15, 24, 0.76);
 }
 
 code {
-    background: rgba(124, 238, 255, 0.08);
+    background: rgba(142, 239, 255, 0.05);
 }
 
 .tag-link,
 .internal.tag-link {
-    background: rgba(124, 238, 255, 0.08);
-    border: 1px solid rgba(124, 238, 255, 0.14);
+    background: rgba(142, 239, 255, 0.05);
+    border: 1px solid rgba(142, 239, 255, 0.1);
     color: var(--darkgray);
 }
 
 .tag-link:hover,
 .internal.tag-link:hover {
-    border-color: rgba(124, 238, 255, 0.24);
+    border-color: rgba(142, 239, 255, 0.18);
     color: var(--secondary);
 }
 
@@ -168,7 +168,7 @@ article li {
     font-weight: 500;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: rgba(124, 238, 255, 0.68);
+    color: rgba(142, 239, 255, 0.46);
 }
 
 .backlinks > ul.overflow {
@@ -178,7 +178,7 @@ article li {
 
 .backlinks > ul.overflow > li {
     padding: 0.42rem 0;
-    border-top: 1px solid rgba(124, 238, 255, 0.06);
+    border-top: 1px solid rgba(142, 239, 255, 0.05);
 }
 
 .backlinks > ul.overflow > li:first-child {
@@ -190,7 +190,7 @@ article li {
     font-size: 0.92rem;
     font-weight: 400;
     line-height: 1.7;
-    color: rgba(215, 228, 239, 0.82);
+    color: rgba(202, 215, 226, 0.76);
 }
 
 button.mobile-explorer,
@@ -204,19 +204,19 @@ button.desktop-explorer,
 
 input,
 textarea {
-    border-color: rgba(124, 238, 255, 0.12);
+    border-color: rgba(142, 239, 255, 0.08);
 }
 
 @media (max-width: 800px) {
     .page > #quartz-body .sidebar.left:has(.explorer) {
-        background: rgba(7, 17, 31, 0.96);
-        border-bottom: 1px solid rgba(124, 238, 255, 0.08);
+        background: rgba(8, 19, 31, 0.96);
+        border-bottom: 1px solid rgba(142, 239, 255, 0.06);
         backdrop-filter: blur(10px);
     }
 
     .explorer-content,
     .search-container {
-        background: rgba(7, 17, 31, 0.92);
+        background: rgba(8, 19, 31, 0.92);
     }
 
     button.mobile-explorer,
